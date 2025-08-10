@@ -14,7 +14,7 @@ export default function Home() {
               AI Solutions for <span className="bg-gradient-to-r from-brand to-cyan-400 bg-clip-text text-transparent">hospitals</span>
             </h1>
             <p className="mt-4 text-base sm:text-lg text-black/70 dark:text-white/70 max-w-xl">
-              Prent AI streamlines patient flow, reduces operational delays, and uncovers revenue integrity opportunities across your hospital network. We are a team of engineers and doctors that are passionate about using AI to improve the quality of care.
+              Prent AI streamlines patient flow, reduces operational delays, and uncovers revenue integrity opportunities across your hospital network. We are a team of engineers that are passionate about using AI to improve the quality of care.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
               <a href="#demo" className="inline-flex items-center justify-center rounded-full bg-brand px-6 py-3 text-white font-medium shadow-sm hover:brightness-110 active:scale-[0.99] transition">
@@ -30,9 +30,6 @@ export default function Home() {
           </div>
         </div>
         <div className="mx-auto max-w-6xl px-6 pb-10">
-          <div className="relative aspect-[16/9] rounded-2xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur overflow-hidden shadow-2xl">
-            <Image src="/hero-dashboard.png" alt="Prent AI dashboard" fill className="object-cover" />
-          </div>
         </div>
       </section>
 
@@ -70,13 +67,6 @@ export default function Home() {
       {/* Design partner banner */}
       <div className="mx-auto max-w-7xl px-6">
         <div className="h-px bg-gradient-to-r from-transparent via-black/10 dark:via-white/10 to-transparent mb-10" />
-        <div className="relative overflow-hidden rounded-2xl border border-black/10 dark:border-white/10 px-6 py-5 bg-white/60 dark:bg-white/5 backdrop-blur">
-          <p className="text-sm sm:text-base">
-            We’re a small team and actively onboarding design partners. If you’d like early access, reach out at
-            {" "}
-            <a href="mailto:lmendez@itba.edu.ar?subject=Design%20Partner%20-%20Prent%20AI" className="underline underline-offset-4 hover:opacity-80">lmendez@itba.edu.ar</a>.
-          </p>
-        </div>
       </div>
 
       {/* How it works */}
@@ -92,9 +82,6 @@ export default function Home() {
               <li className="flex items-start gap-3"><span className="mt-1 h-2 w-2 rounded-full bg-brand" /> Works with your existing tools</li>
               <li className="flex items-start gap-3"><span className="mt-1 h-2 w-2 rounded-full bg-brand" /> No heavy lift for IT</li>
             </ul>
-          </div>
-          <div className="relative aspect-[4/3] rounded-2xl border border-black/10 dark:border-white/10 overflow-hidden">
-            <Image src="/how.png" alt="Integration overview" fill className="object-cover" />
           </div>
         </div>
       </section>
