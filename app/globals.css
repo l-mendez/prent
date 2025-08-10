@@ -27,3 +27,12 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui;
 }
+
+@keyframes floaty {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-floaty-slow {
+  animation: floaty 12s ease-in-out infinite;
+}
