@@ -1,8 +1,8 @@
 import { openai } from '@ai-sdk/openai';
-import {generateText, tool, Output} from 'ai';
+import {generateObject} from 'ai';
 import z from 'zod';
 import { NextRequest, NextResponse } from 'next/server';
-import type { ConversationMessage, OutputFormat } from '../../product/types';
+import type { ConversationMessage, OutputFormat } from '@/app/product/types';
 
 const nextQuestionSystemPromptUrgencias = `
 <descripcion_del_agente>
@@ -151,31 +151,16 @@ const needSummary = (messages: ConversationMessage[]) => {
 }
 
 const getNextQuestion = async (messages: ConversationMessage[], summary: string, selectedPrompt: string, last5Assistant: ConversationMessage[], last5User: ConversationMessage[]) => {
-  const response = await generateText({
+  const response = await generateObject({
   model: openai('gpt-5'),
-  experimental_output: Output.object({
-    schema: z.object({
+  schema: z.object({
       message: z.string(),
       suggestions: z.array(z.string()).max(5),
-    }),
   }),
   system: `Resumen actual:${'\n'}${summary || 'Sin resumen disponible'}${'\n\n'}${selectedPrompt}`,
   messages: [...last5Assistant, ...last5User],
-  tools: {
-    // Fin de consulta
-    terminar_consulta: tool({
-      description: 'Termina la consulta',
-      inputSchema: z.object({}),
-      execute: async () => {
-        return {
-          message: 'Consulta finalizada',
-          suggestions: [],
-        }
-      },
-    })
-  },
   });
-  return response.text;
+  return response.object;
 }
 
 const formatSuggestions = (suggestions: string[]) => {
@@ -214,28 +199,7 @@ export async function POST(request: NextRequest) {
 
     const aiMessage = await getNextQuestion(messages, summary, selectedPrompt, last5Assistant, last5User);
 
-    let nextQuestionOutput: OutputFormat;
-    let message: string;
-    let suggestions: string[];
-    try{
-      nextQuestionOutput = JSON.parse(aiMessage)
-    } catch (e) {
-      throw new Error('Error parsing aiMessage: ' + e + '. Expected JSON, got:' + aiMessage)
-    }
-    try {
-      message = nextQuestionOutput.message
-    } catch (e) {
-      throw new Error('Error parsing nextQuestionOutput: ' + e + '. Expected message, got:' + nextQuestionOutput)
-    }
-    try{
-      suggestions = JSON.parse(aiMessage).suggestions
-    } catch (e) {
-      throw new Error('Error parsing suggestions: ' + e + '. Expected array, got:' + aiMessage)
-    }
-
-    suggestions = formatSuggestions(suggestions);
-
-    return NextResponse.json({ message: message || '¿Podrías contarme un poco más?', summary, suggestions });
+    return NextResponse.json({ message: aiMessage.message || '¿Podrías contarme un poco más?', summary, suggestions: aiMessage.suggestions });
   } catch (error) {
     console.error('Error calling OpenAI API:', error);
     return NextResponse.json(

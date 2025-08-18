@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateObject, Output } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
-import type { ConversationMessage } from '../../product/types';
+import type { ConversationMessage } from '@/app/product/types';
 
 const getLastTenMessages = (messages: ConversationMessage[]): ConversationMessage[] => {
   return Array.isArray(messages) ? messages.filter((m: ConversationMessage) => !!m && !!m.content && m.role !== 'system').slice(-10) : [];
@@ -17,7 +17,7 @@ Eres un asistente clínico que ACTUALIZA un resumen acumulativo en español y AS
 
 <objetivo>
 - Actualiza el resumen ANTERIOR con información NUEVA proveniente de los últimos mensajes.
-- Mantén el resumen CONCISO y de FORMATO LIBRE: usa un párrafo breve (2–4 frases) o 3–6 viñetas.
+- Mantén el resumen CONCISO y de FORMATO: usa bullet points cortos con los sintomas y signos.
 - Evita encabezados, títulos o secciones predefinidas.
 - Si NO hay novedades, usa EXACTAMENTE el resumen anterior sin cambios.
 </objetivo>
@@ -44,7 +44,7 @@ Eres un asistente clínico que ACTUALIZA un resumen acumulativo en español.
 
 <objetivo>
 - Actualiza el resumen ANTERIOR con información NUEVA proveniente de los últimos mensajes.
-- Mantén el resumen CONCISO y de FORMATO LIBRE: usa un párrafo breve (2–4 frases) o 3–6 viñetas.
+- Mantén el resumen CONCISO y de FORMATO: hace bullet points cortos con los sintomas y signos.
 - Evita encabezados, títulos o secciones predefinidas.
 - Si NO hay novedades, usa EXACTAMENTE el resumen anterior sin cambios.
 </objetivo>

@@ -132,6 +132,7 @@ Devuelve EXCLUSIVAMENTE un texto en español para el paciente, sin JSON ni metad
 export async function POST(request: NextRequest) {
   try {
     const { messages } = await request.json();
+    let turnoId: number | null = null;
     let reserved = false;
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json({ error: 'Messages array is required' }, { status: 400 });
@@ -194,7 +195,11 @@ export async function POST(request: NextRequest) {
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ paciente, date, time })
                 });
-                return await res.json();
+                const data = await res.json();
+                if (res.ok && data && data.turno && typeof data.turno.id === 'number') {
+                  turnoId = data.turno.id;
+                }
+                return data;
               } catch (e) {
                 return { error: 'No se pudo reservar el turno:' + e };
               }
@@ -217,6 +222,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       message: response.text,
       reserved: reserved,
+      turnoId: turnoId,
     });
 
   } catch (error) {

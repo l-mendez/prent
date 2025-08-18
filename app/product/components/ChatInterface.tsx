@@ -178,7 +178,12 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
       const response = (hasAppointment || mode === 'urgencias')
         ? await getMedicalResponse(allMessages, summary, summaryFormat, keyInfo, mode)
         : await getAppointmentResponse(allMessages);
-      if (response.reserved && response.turnoId) setScheduledTurnoId(response.turnoId); // Save the turnoId for the summary
+      if (response.reserved){
+        if (response.turnoId == null) {
+          throw new Error('TurnoId is null');
+        }
+        setScheduledTurnoId(response.turnoId); // Save the turnoId for the summary
+      }
     return response
   } catch (error) {
     console.error('Error generating AI response:', error);
@@ -202,7 +207,7 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
       }
 
       const data = await response.json();
-      const summaryText: string = data.message || 'No se pudo generar el resumen.';
+      const summaryText: string = data.summary || 'No se pudo generar el resumen.';
       const triage = (mode === 'urgencias') && data.triage && typeof data.triage === 'object'
         ? {
             level: data.triage.level as 'Rojo' | 'Naranja' | 'Amarillo' | 'Verde' | 'Azul',
@@ -250,7 +255,6 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
     setSuggestions([]);
 
     const { message: aiRaw, reserved } = await generateAIResponse(content);
-    console.log ('reserved: ', reserved)
     if( typeof aiRaw !== 'string' ) {
       throw new Error('AI response: ' + JSON.stringify(aiRaw) + ' is not a string');
     }
@@ -347,12 +351,12 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
                         type="button"
                         onClick={handleModeToggle}
                         disabled={configLocked || chatLocked}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ease-in-out ${mode === 'consultorio' ? 'bg-blue-600' : 'bg-red-600'} disabled:opacity-50 disabled:cursor-not-allowed hover:scale-110 active:scale-95`}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${mode === 'consultorio' ? 'bg-blue-600' : 'bg-red-600'} disabled:opacity-50 disabled:cursor-not-allowed`}
                         aria-label="Alternar modo"
                         aria-pressed={mode === 'consultorio'}
                       >
                         <span
-                          className={`inline-block h-5 w-5 transform rounded-full bg-white transition-all duration-300 ease-in-out ${mode === 'consultorio' ? 'translate-x-6' : 'translate-x-1'} shadow-lg`}
+                          className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${mode === 'consultorio' ? 'translate-x-6' : 'translate-x-1'}`}
                         />
                       </button>
                     </div>

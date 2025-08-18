@@ -1,8 +1,30 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Header from '../components/Header';
-import LoadingScreen from '../components/LoadingScreen';
+import Header from '@/app/product/components/Header';
+import LoadingScreen from '@/app/product/components/LoadingScreen';
+
+type SpeechRecognitionAlternativeLike = {
+  transcript: string;
+  confidence?: number;
+};
+
+type SpeechRecognitionResultLike = {
+  isFinal: boolean;
+  length: number;
+  0: SpeechRecognitionAlternativeLike;
+  [index: number]: SpeechRecognitionAlternativeLike;
+};
+
+type SpeechRecognitionResultListLike = {
+  length: number;
+  [index: number]: SpeechRecognitionResultLike;
+};
+
+type SpeechRecognitionEventLike = {
+  resultIndex: number;
+  results: SpeechRecognitionResultListLike;
+};
 
 type Recognizer = {
   start: () => void;
@@ -11,15 +33,16 @@ type Recognizer = {
   lang: string;
   continuous: boolean;
   interimResults: boolean;
-  onresult: ((ev: any) => void) | null;
+  onresult: ((ev: SpeechRecognitionEventLike) => void) | null;
   onaudioend?: (() => void) | null;
-  onerror?: ((ev: any) => void) | null;
+  onerror?: ((ev: Event) => void) | null;
 };
 
 declare global {
   interface Window {
     webkitSpeechRecognition?: new () => Recognizer;
     SpeechRecognition?: new () => Recognizer;
+    webkitAudioContext?: { new (): AudioContext };
   }
 }
 
@@ -42,6 +65,8 @@ export default function RecordPage() {
 
   const [transcript, setTranscript] = useState('');
   const [interimTranscript, setInterimTranscript] = useState('');
+  const [summaryText, setSummaryText] = useState<string | null>(null);
+  const [isSummarizing, setIsSummarizing] = useState(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -92,7 +117,10 @@ export default function RecordPage() {
   }, []);
 
   const setupAudioGraph = useCallback((stream: MediaStream) => {
-    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const Ctx = (window.AudioContext ?? window.webkitAudioContext) as unknown as {
+      new (): AudioContext;
+    };
+    const ctx = new Ctx();
     const source = ctx.createMediaStreamSource(stream);
     const analyser = ctx.createAnalyser();
     analyser.fftSize = 2048;
@@ -122,13 +150,15 @@ export default function RecordPage() {
   const startRecognition = useCallback(() => {
     if (!recognitionSupported) return;
     try {
-      const Ctor = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const Ctor = (window.SpeechRecognition || window.webkitSpeechRecognition) as
+        | (new () => Recognizer)
+        | undefined;
       if (!Ctor) return;
       const rec = new Ctor();
       rec.lang = 'es-ES';
       rec.continuous = true;
       rec.interimResults = true;
-      rec.onresult = (event: any) => {
+      rec.onresult = (event: SpeechRecognitionEventLike) => {
         let finalText = '';
         let interimText = '';
         for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -185,6 +215,10 @@ export default function RecordPage() {
 
   const startRecording = useCallback(async () => {
     setError(null);
+    setSummaryText(null);
+    setIsSummarizing(false);
+    setTranscript('');
+    setInterimTranscript('');
     const mr = await ensureRecorder();
     if (!mr) return;
     audioChunksRef.current = [];
@@ -236,6 +270,7 @@ export default function RecordPage() {
   const clearTranscript = useCallback(() => {
     setTranscript('');
     setInterimTranscript('');
+    setSummaryText(null);
   }, []);
 
   const copyTranscript = useCallback(async () => {
@@ -272,6 +307,32 @@ export default function RecordPage() {
       const data = await res.json();
       if (data?.transcription) setTranscript(data.transcription);
       if (data?.error) setError(data.error);
+
+      // After transcription, generate summary from transcript
+      if (data?.transcription) {
+        setIsSummarizing(true);
+        try {
+          const sumRes = await fetch('/api/summary', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              messages: [
+                { role: 'user', content: data.transcription },
+              ],
+              summary: null,
+              freeForm: true,
+              triageEnabled: false,
+            }),
+          });
+          const sumData = await sumRes.json();
+          if (sumData?.summary) setSummaryText(sumData.summary);
+          if (sumData?.error) setError(sumData.error);
+        } catch {
+          setError('No se pudo generar el resumen');
+        } finally {
+          setIsSummarizing(false);
+        }
+      }
     } catch {
       setError('No se pudo transcribir el audio');
     }
@@ -323,15 +384,15 @@ export default function RecordPage() {
 
             <div className="mt-6 flex flex-wrap items-center gap-3">
               {!isRecording ? (
-                <button onClick={startRecording} className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 hover:scale-105 hover:shadow-lg transition-all duration-200 ease-in-out active:scale-95">Iniciar</button>
+                <button onClick={startRecording} className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">Iniciar</button>
               ) : isPaused ? (
-                <button onClick={resumeRecording} className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 hover:scale-105 hover:shadow-lg transition-all duration-200 ease-in-out active:scale-95">Reanudar</button>
+                <button onClick={resumeRecording} className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">Reanudar</button>
               ) : (
-                <button onClick={pauseRecording} className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300 hover:scale-105 hover:shadow-lg transition-all duration-200 ease-in-out active:scale-95">Pausar</button>
+                <button onClick={pauseRecording} className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300">Pausar</button>
               )}
-              <button onClick={stopRecording} className="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-100 hover:scale-105 hover:shadow-md transition-all duration-200 ease-in-out active:scale-95">Detener</button>
-              <button onClick={downloadAudio} className="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-100 hover:scale-105 hover:shadow-md transition-all duration-200 ease-in-out active:scale-95">Descargar</button>
-              <button onClick={transcribeFullRecording} className="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-100 hover:scale-105 hover:shadow-md transition-all duration-200 ease-in-out active:scale-95">Transcribir</button>
+              <button onClick={stopRecording} className="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-100">Detener</button>
+              <button onClick={downloadAudio} className="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-100">Descargar</button>
+              <button onClick={transcribeFullRecording} className="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-100">Transcribir</button>
             </div>
 
             <div className="mt-4 text-xs text-gray-500">
@@ -366,11 +427,24 @@ export default function RecordPage() {
                 Consejo: Conecte un servicio de transcripción (SSE/WebSocket) y añada actualizaciones al estado de transcripción en tiempo real.
               </div>
             )}
+
+            {/* Summary output */}
+            <div className="mt-6">
+              <div className="flex items-center justify-between">
+                <h4 className="text-lg font-semibold text-gray-900">Resumen</h4>
+                {isSummarizing && (
+                  <span className="text-sm text-gray-500">Generando resumen…</span>
+                )}
+              </div>
+              <div className="mt-2 rounded-lg border border-gray-100 bg-gray-50 p-4 min-h-[120px]">
+                <p className="whitespace-pre-wrap text-gray-900 leading-relaxed">
+                  {summaryText || 'Genere la transcripción para obtener un resumen.'}
+                </p>
+              </div>
+            </div>
           </section>
         </div>
       </main>
     </div>
   );
 }
-
-
