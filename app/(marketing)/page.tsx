@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useLanguage } from "./contexts/LanguageContext";
 
 export default function Home() {
@@ -23,11 +24,11 @@ export default function Home() {
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
               <a 
                 href="#demo" 
-                className="group inline-flex items-center justify-center rounded-full bg-brand px-6 py-3 text-white font-medium shadow-lg transition-all duration-300 hover:brightness-110 hover:scale-105 active:scale-95"
+                className="group inline-flex items-center justify-center rounded-full bg-brand px-6 py-3 text-white font-medium shadow-lg transition-all duration-500 ease-in-out hover:brightness-110 hover:scale-105 hover:shadow-xl hover:shadow-brand/30 active:scale-95"
               >
                 <span>{t('hero.demo')}</span>
                 <svg 
-                  className="ml-2 h-4 w-4 transition-all duration-300 group-hover:translate-x-1 group-hover:scale-110" 
+                  className="ml-2 h-4 w-4 transition-all duration-500 ease-in-out group-hover:translate-x-1 group-hover:scale-110" 
                   viewBox="0 0 24 24" 
                   fill="none" 
                   xmlns="http://www.w3.org/2000/svg" 
@@ -36,7 +37,7 @@ export default function Home() {
                   <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </a>
-              <a href="#how" className="inline-flex items-center justify-center rounded-full border border-black/10 dark:border-white/20 px-6 py-3 font-medium transition-all duration-300 hover:bg-black/5 dark:hover:bg-white/5 hover:border-black/20 dark:hover:border-white/30 hover:scale-105 active:scale-95">
+              <a href="#how" className="inline-flex items-center justify-center rounded-full border border-black/10 dark:border-white/20 px-6 py-3 font-medium transition-all duration-500 ease-in-out hover:bg-black/5 dark:hover:bg-white/5 hover:border-black/20 dark:hover:border-white/30 hover:scale-105 hover:shadow-lg active:scale-95">
                 {t('hero.how')}
               </a>
             </div>
@@ -54,26 +55,41 @@ export default function Home() {
               title: t('value.consultation.title'),
               desc: t('value.consultation.desc'),
               icon: "/icons/capacity.svg",
+              href: "/product",
             },
             {
               title: t('value.medics.title'),
               desc: t('value.medics.desc'),
               icon: "/icons/coordination.svg",
+              href: "/product/record",
             },
             {
               title: t('value.outcomes.title'),
               desc: t('value.outcomes.desc'),
               icon: "/icons/revenue.svg",
+              href: "/product/misturnos",
             },
-          ].map((item) => (
-            <div key={item.title} className="rounded-2xl border border-black/10 dark:border-white/10 p-6 bg-white/60 dark:bg-white/5 backdrop-blur transition hover:shadow-lg hover:-translate-y-0.5">
-              <div className="h-10 w-10 rounded-lg bg-brand/10 flex items-center justify-center mb-4">
-                <Image src={item.icon} alt="" width={24} height={24} />
+          ].map((item) => {
+            const content = (
+              <div className="group rounded-2xl border border-black/10 dark:border-white/10 p-6 bg-white/60 dark:bg-white/5 backdrop-blur transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-brand/5 hover:-translate-y-0.5 hover:border-brand/15 dark:hover:border-brand/20 hover:bg-white/70 dark:hover:bg-white/8 active:scale-98 active:translate-y-0">
+                <div className="h-10 w-10 rounded-lg bg-brand/10 flex items-center justify-center mb-4 transition-all duration-300 ease-in-out group-hover:bg-brand/15 group-hover:scale-105">
+                  <Image src={item.icon} alt="" width={24} height={24} className="transition-all duration-300 ease-in-out group-hover:scale-105" />
+                </div>
+                <h3 className="font-semibold text-lg transition-all duration-300 ease-in-out group-hover:text-brand/80">{item.title}</h3>
+                <p className="mt-2 text-sm text-black/70 dark:text-white/70 transition-all duration-300 ease-in-out group-hover:text-black/80 dark:group-hover:text-white/85">{item.desc}</p>
               </div>
-              <h3 className="font-semibold text-lg">{item.title}</h3>
-              <p className="mt-2 text-sm text-black/70 dark:text-white/70">{item.desc}</p>
-            </div>
-          ))}
+            );
+
+            return item.href ? (
+              <Link key={item.title} href={item.href} className="block transition-all duration-300 ease-in-out hover:scale-102 active:scale-100">
+                {content}
+              </Link>
+            ) : (
+              <div key={item.title} className="transition-all duration-300 ease-in-out hover:scale-101">
+                {content}
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -91,9 +107,18 @@ export default function Home() {
               {t('how.description')}
             </p>
             <ul className="mt-6 space-y-3 text-sm">
-            <li className="flex items-start gap-3"><span className="mt-1 h-2 w-2 rounded-full bg-brand" /> {t('how.pilot')}</li>
-              <li className="flex items-start gap-3"><span className="mt-1 h-2 w-2 rounded-full bg-brand" /> {t('how.tools')}</li>
-              <li className="flex items-start gap-3"><span className="mt-1 h-2 w-2 rounded-full bg-brand" /> {t('how.lift')}</li>
+              <li className="group flex items-start gap-3 p-3 rounded-lg transition-all duration-300 ease-in-out hover:translate-x-2 hover:bg-brand/5 hover:shadow-md hover:scale-[1.02] cursor-default border border-transparent hover:border-brand/20">
+                <span className="mt-1 h-2 w-2 rounded-full bg-brand transition-all duration-300 ease-in-out group-hover:scale-150 group-hover:shadow-lg group-hover:shadow-brand/50" /> 
+                <span className="transition-all duration-300 ease-in-out group-hover:text-brand group-hover:font-medium">{t('how.pilot')}</span>
+              </li>
+              <li className="group flex items-start gap-3 p-3 rounded-lg transition-all duration-300 ease-in-out hover:translate-x-2 hover:bg-brand/5 hover:shadow-md hover:scale-[1.02] cursor-default border border-transparent hover:border-brand/20" style={{transitionDelay: '0.1s'}}>
+                <span className="mt-1 h-2 w-2 rounded-full bg-brand transition-all duration-300 ease-in-out group-hover:scale-150 group-hover:shadow-lg group-hover:shadow-brand/50" /> 
+                <span className="transition-all duration-300 ease-in-out group-hover:text-brand group-hover:font-medium">{t('how.tools')}</span>
+              </li>
+              <li className="group flex items-start gap-3 p-3 rounded-lg transition-all duration-300 ease-in-out hover:translate-x-2 hover:bg-brand/5 hover:shadow-md hover:scale-[1.02] cursor-default border border-transparent hover:border-brand/20" style={{transitionDelay: '0.2s'}}>
+                <span className="mt-1 h-2 w-2 rounded-full bg-brand transition-all duration-300 ease-in-out group-hover:scale-150 group-hover:shadow-lg group-hover:shadow-brand/50" /> 
+                <span className="transition-all duration-300 ease-in-out group-hover:text-brand group-hover:font-medium">{t('how.lift')}</span>
+              </li>
             </ul>
           </div>
         </div>
@@ -101,25 +126,22 @@ export default function Home() {
 
       {/* CTA */}
       <section id="demo" className="mx-auto max-w-7xl px-6 py-20">
-        <div className="group relative overflow-hidden rounded-2xl border border-black/10 dark:border-white/10 p-8 text-center bg-gradient-to-r from-brand/10 to-cyan-400/10 transition-all duration-500 hover:shadow-2xl hover:shadow-brand/20 hover:scale-[1.02] hover:border-brand/20 dark:hover:border-brand/30">
-          <div className="pointer-events-none absolute -bottom-10 -left-10 h-56 w-56 rounded-full bg-brand/20 blur-3xl transition-all duration-700 group-hover:bg-brand/30 group-hover:scale-110" />
-          <div className="pointer-events-none absolute -top-10 -right-10 h-56 w-56 rounded-full bg-cyan-400/20 blur-3xl transition-all duration-700 group-hover:bg-cyan-400/30 group-hover:scale-110" />
-          
-          {/* Additional animated background elements */}
-          <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-32 w-32 rounded-full bg-gradient-to-r from-brand/10 to-cyan-400/10 animate-pulse" />
-          </div>
+        <div className="group relative overflow-hidden rounded-2xl border border-black/10 dark:border-white/10 p-8 text-center bg-gradient-to-r from-brand/10 to-cyan-400/10 transition-all duration-500 ease-out hover:shadow-xl hover:shadow-brand/10 hover:border-brand/15 dark:hover:border-brand/20 hover:from-brand/12 hover:to-cyan-400/12">
+          {/* Simplified background animation */}
+          <div className="pointer-events-none absolute -bottom-10 -left-10 h-56 w-56 rounded-full bg-brand/15 blur-3xl transition-all duration-700 ease-out group-hover:bg-brand/20 group-hover:scale-105" />
+          <div className="pointer-events-none absolute -top-10 -right-10 h-56 w-56 rounded-full bg-cyan-400/15 blur-3xl transition-all duration-700 ease-out group-hover:bg-cyan-400/20 group-hover:scale-105" />
           
           <div className="relative z-10">
-            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight transition-all duration-300 group-hover:scale-105">{t('cta.title')}</h2>
-            <p className="mt-2 text-black/70 dark:text-white/70 transition-all duration-300 group-hover:text-black dark:group-hover:text-white">{t('cta.description')}</p>
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight transition-colors duration-300 ease-out group-hover:text-brand">{t('cta.title')}</h2>
+            <p className="mt-2 text-black/70 dark:text-white/70 transition-colors duration-300 ease-out group-hover:text-black dark:group-hover:text-white">{t('cta.description')}</p>
             <a
               href="mailto:lmendez@itba.edu.ar?subject=Demo%20Request%20-%20Prent%20AI"
-              className="mt-6 inline-flex items-center justify-center rounded-full bg-brand px-6 py-3 text-white font-medium shadow-sm transition-all duration-300 hover:brightness-110 hover:shadow-lg hover:shadow-brand/30 hover:scale-105 active:scale-95 group-hover:animate-pulse"
+              className="mt-6 inline-flex items-center justify-center rounded-full bg-brand px-6 py-3 text-white font-medium shadow-lg transition-all duration-200 ease-out hover:brightness-110 hover:shadow-xl hover:shadow-brand/30 hover:scale-105 active:scale-95"
+              onClick={(e) => e.stopPropagation()}
             >
-              {t('cta.demo')}
+              <span>{t('cta.demo')}</span>
               <svg 
-                className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" 
+                className="ml-2 h-4 w-4 transition-transform duration-200 ease-out group-hover:translate-x-0.5" 
                 viewBox="0 0 24 24" 
                 fill="none" 
                 xmlns="http://www.w3.org/2000/svg" 

@@ -268,7 +268,7 @@ export default function MisTurnosPage() {
                                 setOpenTurnoId((prev) => (prev === t.id ? null : t.id));
                               }
                             }}
-                            className="cursor-pointer group w-full rounded-lg bg-emerald-500 text-white px-3 py-2 flex flex-col justify-center medical-shadow"
+                            className="cursor-pointer group w-full rounded-lg bg-emerald-500 text-white px-3 py-2 flex flex-col justify-center medical-shadow hover:bg-emerald-600 hover:scale-105 hover:shadow-lg transition-all duration-200 ease-in-out active:scale-95"
                           >
                             <div className="text-sm font-semibold truncate">{t.paciente ?? 'Sin nombre'}</div>
                             {compactInfo(t.info) && (

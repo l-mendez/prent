@@ -1,11 +1,15 @@
 'use client';
 
+import Link from "next/link";
+
 export default function Header() {
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">
       <div className="flex items-center justify-between px-6 py-4">
-        <div className="flex items-center space-x-3">
-          
+        <Link 
+          href="/" 
+          className="flex items-center space-x-3 hover:opacity-80 hover:scale-105 transition-all duration-200 ease-in-out active:scale-95"
+        >
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <img src="/prent-logo.svg" alt="Prent" className="w-5 h-5" />
           </div>
@@ -13,7 +17,7 @@ export default function Header() {
             <h1 className="text-xl font-bold text-gray-900">Prent AI</h1>
             <p className="text-sm text-gray-500">Medical Assistant</p>
           </div>
-        </div>
+        </Link>
         
         <div className="flex items-center space-x-4">
           <button className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">

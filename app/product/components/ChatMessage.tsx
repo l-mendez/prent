@@ -1,5 +1,7 @@
 'use client';
 
+import Link from "next/link";
+
 interface ChatMessageProps {
   message: {
     role: 'user' | 'assistant' | 'system';
@@ -21,7 +23,12 @@ export default function ChatMessage({ message }: ChatMessageProps) {
               : 'bg-gray-300'
           }`}>
             {isAI ? (
-              <img src="/prent-logo.svg" alt="Prent" className="w-5 h-5" />
+              <Link 
+                href="/" 
+                className="hover:opacity-80 hover:scale-110 transition-all duration-200 ease-in-out active:scale-95"
+              >
+                <img src="/prent-logo.svg" alt="Prent" className="w-5 h-5" />
+              </Link>
             ) : (
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />

@@ -323,15 +323,15 @@ export default function RecordPage() {
 
             <div className="mt-6 flex flex-wrap items-center gap-3">
               {!isRecording ? (
-                <button onClick={startRecording} className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">Iniciar</button>
+                <button onClick={startRecording} className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 hover:scale-105 hover:shadow-lg transition-all duration-200 ease-in-out active:scale-95">Iniciar</button>
               ) : isPaused ? (
-                <button onClick={resumeRecording} className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">Reanudar</button>
+                <button onClick={resumeRecording} className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 hover:scale-105 hover:shadow-lg transition-all duration-200 ease-in-out active:scale-95">Reanudar</button>
               ) : (
-                <button onClick={pauseRecording} className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300">Pausar</button>
+                <button onClick={pauseRecording} className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300 hover:scale-105 hover:shadow-lg transition-all duration-200 ease-in-out active:scale-95">Pausar</button>
               )}
-              <button onClick={stopRecording} className="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-100">Detener</button>
-              <button onClick={downloadAudio} className="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-100">Descargar</button>
-              <button onClick={transcribeFullRecording} className="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-100">Transcribir</button>
+              <button onClick={stopRecording} className="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-100 hover:scale-105 hover:shadow-md transition-all duration-200 ease-in-out active:scale-95">Detener</button>
+              <button onClick={downloadAudio} className="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-100 hover:scale-105 hover:shadow-md transition-all duration-200 ease-in-out active:scale-95">Descargar</button>
+              <button onClick={transcribeFullRecording} className="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-100 hover:scale-105 hover:shadow-md transition-all duration-200 ease-in-out active:scale-95">Transcribir</button>
             </div>
 
             <div className="mt-4 text-xs text-gray-500">

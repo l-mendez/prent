@@ -347,12 +347,12 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
                         type="button"
                         onClick={handleModeToggle}
                         disabled={configLocked || chatLocked}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${mode === 'consultorio' ? 'bg-blue-600' : 'bg-red-600'} disabled:opacity-50 disabled:cursor-not-allowed`}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ease-in-out ${mode === 'consultorio' ? 'bg-blue-600' : 'bg-red-600'} disabled:opacity-50 disabled:cursor-not-allowed hover:scale-110 active:scale-95`}
                         aria-label="Alternar modo"
                         aria-pressed={mode === 'consultorio'}
                       >
                         <span
-                          className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${mode === 'consultorio' ? 'translate-x-6' : 'translate-x-1'}`}
+                          className={`inline-block h-5 w-5 transform rounded-full bg-white transition-all duration-300 ease-in-out ${mode === 'consultorio' ? 'translate-x-6' : 'translate-x-1'} shadow-lg`}
                         />
                       </button>
                     </div>

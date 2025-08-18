@@ -61,14 +61,111 @@ body {
 }
 .animate-floaty-slow { animation: floaty 12s ease-in-out infinite; }
 
+/* Smooth fade-in animation for content */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in-up { 
+  animation: fadeInUp 0.6s ease-out forwards; 
+}
+
+.animate-fade-in { 
+  animation: fadeIn 0.4s ease-out forwards; 
+}
+
+/* Smooth scale animation for interactive elements */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in { 
+  animation: scaleIn 0.3s ease-out forwards; 
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #f1f5f9; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-/* Smooth UI transitions (keep light to avoid perf issues) */
-* { transition: background-color .2s ease, border-color .2s ease, color .2s ease; }
+/* Smooth UI transitions (comprehensive but performant) */
+* { 
+  transition: 
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+/* Enhanced interactive element transitions */
+button, 
+input, 
+textarea, 
+select, 
+[role="button"],
+a {
+  transition: 
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease,
+    scale 0.15s ease;
+}
+
+/* Smooth focus transitions */
+input:focus,
+textarea:focus,
+select:focus,
+button:focus,
+[role="button"]:focus {
+  transition: 
+    outline 0.15s ease,
+    outline-offset 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+
+/* Hover and active states */
+button:hover:not(:disabled),
+[role="button"]:hover:not([aria-disabled="true"]) {
+  transform: translateY(-1px);
+}
+
+button:active:not(:disabled),
+[role="button"]:active:not([aria-disabled="true"]) {
+  transform: translateY(0px);
+  transition-duration: 0.1s;
+}
 
 /* Medical-themed helpers (used by product) */
 .medical-gradient { background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); }
@@ -80,4 +177,40 @@ body {
 
 /* Selection + focus */
 ::selection { background: rgba(37, 99, 235, 0.2); color: inherit; }
-.focus-medical:focus { outline: 2px solid var(--medical-blue); outline-offset: 2px; }
+
+/* Enhanced focus styles */
+.focus-medical:focus { 
+  outline: 2px solid var(--medical-blue); 
+  outline-offset: 2px;
+  transition: outline 0.15s ease-in-out, outline-offset 0.15s ease-in-out;
+}
+
+/* Focus visible for better accessibility */
+*:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 4px;
+  transition: outline 0.15s ease-in-out, outline-offset 0.15s ease-in-out;
+}
+
+/* Remove default focus styles when using focus-visible */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Enhanced focus for form elements */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--medical-blue);
+  outline-offset: 1px;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Button focus enhancements */
+button:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(43, 109, 246, 0.15);
+}

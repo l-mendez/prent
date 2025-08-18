@@ -48,7 +48,7 @@ export default function ChatInput({ onSendMessage, isLoading = false, suggestion
                 type="button"
                 onClick={() => handleQuickSend(prompt)}
                 disabled={isLoading}
-                className="px-3 py-1 text-sm rounded-full transition-colors disabled:opacity-60 disabled:cursor-not-allowed bg-gray-100 text-gray-700 hover:bg-gray-200"
+                className="px-3 py-1 text-sm rounded-full transition-all duration-200 ease-in-out disabled:opacity-60 disabled:cursor-not-allowed bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105 hover:shadow-md active:scale-95"
               >
                 {prompt}
               </button>
@@ -65,7 +65,7 @@ export default function ChatInput({ onSendMessage, isLoading = false, suggestion
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Describe el síntoma, pregunta sobre el tratamiento, o solicita ayuda médica..."
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder:text-gray-400"
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder:text-gray-400 transition-all duration-200 ease-in-out focus:shadow-lg focus:scale-[1.02]"
             rows={3}
             disabled={isLoading}
           />
@@ -73,7 +73,7 @@ export default function ChatInput({ onSendMessage, isLoading = false, suggestion
         <button
           type="submit"
           disabled={!message.trim() || isLoading}
-          className="p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          className="p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 hover:shadow-lg hover:scale-105 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none transition-all duration-200 ease-in-out active:scale-95"
         >
           {isLoading ? (
             <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
