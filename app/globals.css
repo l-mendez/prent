@@ -1,42 +1,83 @@
+/* app/globals.css */
 @import "tailwindcss";
 
-html {
-  scroll-behavior: smooth;
-}
+/* Smooth scroll site-wide */
+html { scroll-behavior: smooth; }
 
+/* ---------- CSS Variables ---------- */
 :root {
+  /* Base colors */
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Marketing / brand */
   --brand: #2b6df6; /* calming clinic blue */
+
+  /* Product / medical palette */
+  --medical-blue: #2563eb;
+  --medical-blue-light: #3b82f6;
+  --medical-green: #059669;
+  --medical-red: #dc2626;
+
+  /* Font vars injected by next/font in RootLayout */
+  --font-geist-sans: var(--font-geist-sans);
+  --font-geist-mono: var(--font-geist-mono);
 }
 
+/* Tailwind theme tokens from CSS vars */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-brand: var(--brand);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
+/* Dark mode */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+
+    /* Slightly brighter brand in dark */
     --brand: #5b8bff;
   }
 }
 
+/* Base body styles */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
 }
 
+/* ---------- Extras / Utilities ---------- */
+
+/* Float animation used on landing */
 @keyframes floaty {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+  50%      { transform: translateY(-10px); }
+}
+.animate-floaty-slow { animation: floaty 12s ease-in-out infinite; }
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* Smooth UI transitions (keep light to avoid perf issues) */
+* { transition: background-color .2s ease, border-color .2s ease, color .2s ease; }
+
+/* Medical-themed helpers (used by product) */
+.medical-gradient { background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); }
+.medical-shadow {
+  box-shadow:
+    0 4px 6px -1px rgba(37, 99, 235, 0.1),
+    0 2px 4px -1px rgba(37, 99, 235, 0.06);
 }
 
-.animate-floaty-slow {
-  animation: floaty 12s ease-in-out infinite;
-}
+/* Selection + focus */
+::selection { background: rgba(37, 99, 235, 0.2); color: inherit; }
+.focus-medical:focus { outline: 2px solid var(--medical-blue); outline-offset: 2px; }
