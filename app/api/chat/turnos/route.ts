@@ -150,7 +150,6 @@ export async function POST(request: NextRequest) {
           return output.steps.length > 6;
         },  
         tools: {
-          // Obtener turnos
           obtener_turnos_disponibles: tool({
             description: 'Obtiene los turnos disponibles en un rango de fechas y horas (inclusivo)',
             inputSchema: z.object({
@@ -176,7 +175,6 @@ export async function POST(request: NextRequest) {
               }
             },
           }),
-          // Reservar turno
           reservar_turno: tool({
             description: 'Reserva un turno para un paciente, usar primero obtener_turnos_disponibles para verificar disponibilidad',
             inputSchema: z.object({
@@ -205,7 +203,6 @@ export async function POST(request: NextRequest) {
               }
             },
           }),
-          // Terminar reserva
           terminar_reserva: tool({
             description: 'Termina el chat de reserva de turno. Solo llamar una vez que se haya confirmado la reserva.',
             inputSchema: z.object({}),

@@ -345,50 +345,50 @@ export default function RecordPage() {
     <div className="relative h-screen w-screen overflow-hidden flex flex-col">
       {/* Background effects similar to marketing page */}
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(40%_30%_at_50%_-10%,theme(colors.brand/20),transparent_60%),radial-gradient(30%_20%_at_80%_10%,theme(colors.cyan.400/20),transparent_60%)]" />
-      <div className="pointer-events-none absolute -top-20 -left-20 h-72 w-72 rounded-full bg-brand/20 blur-3xl animate-floaty-slow" />
-      <div className="pointer-events-none absolute top-40 -right-16 h-80 w-80 rounded-full bg-cyan-400/20 blur-3xl animate-floaty-slow" />
+      <div className="pointer-events-none absolute -top-10 sm:-top-20 -left-10 sm:-left-20 h-40 w-40 sm:h-72 sm:w-72 rounded-full bg-brand/20 blur-3xl animate-floaty-slow" />
+      <div className="pointer-events-none absolute top-20 sm:top-40 -right-8 sm:-right-16 h-48 w-48 sm:h-80 sm:w-80 rounded-full bg-cyan-400/20 blur-3xl animate-floaty-slow" />
       
       <Header />
-      <main className="flex-1 max-w-7xl mx-auto px-6 py-8 overflow-hidden flex flex-col min-h-0">
-        <div className="mb-6 text-center flex-shrink-0">
-          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 overflow-hidden flex flex-col min-h-0">
+        <div className="mb-4 sm:mb-6 text-center flex-shrink-0">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight">
             Registro de <span className="bg-gradient-to-r from-brand to-cyan-400 bg-clip-text text-transparent">Consulta</span>
           </h1>
-          <p className="mt-2 text-sm sm:text-base text-black/70 dark:text-white/70 max-w-2xl mx-auto">
+          <p className="mt-2 text-sm sm:text-base text-black/70 dark:text-white/70 max-w-2xl mx-auto px-2">
             Grabe y transcriba en tiempo real la conversación con su paciente usando tecnología de vanguardia
           </p>
-          <div className="mt-2 text-xs text-black/60 dark:text-white/60">
+          <div className="mt-2 text-xs text-black/60 dark:text-white/60 px-2">
             {recognitionSupported ? 'Transcripción local habilitada' : 'Transcripción en vivo lista para conectar al backend'}
           </div>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 rounded-2xl border border-red-300/30 bg-red-50/80 dark:bg-red-900/20 backdrop-blur text-red-700 dark:text-red-300 shadow-lg">{error}</div>
+          <div className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-2xl border border-red-300/30 bg-red-50/80 dark:bg-red-900/20 backdrop-blur text-red-700 dark:text-red-300 shadow-lg text-sm sm:text-base">{error}</div>
         )}
 
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-0">
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 min-h-0">
           {/* Controls + Meter */}
-          <section className="group lg:col-span-1 rounded-2xl border border-black/10 dark:border-white/10 p-6 bg-white/60 dark:bg-white/5 backdrop-blur transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-brand/5 hover:border-brand/15 dark:hover:border-brand/20 hover:bg-white/70 dark:hover:bg-white/8">
-            <div className="flex items-center gap-4">
-              <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ease-in-out group-hover:scale-105 ${
+          <section className="group lg:col-span-1 rounded-2xl border border-black/10 dark:border-white/10 p-4 sm:p-6 bg-white/60 dark:bg-white/5 backdrop-blur transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-brand/5 hover:border-brand/15 dark:hover:border-brand/20 hover:bg-white/70 dark:hover:bg-white/8">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ease-in-out group-hover:scale-105 ${
                 isRecording 
                   ? 'bg-red-500 shadow-red-500/30 animate-pulse' 
                   : 'bg-brand shadow-brand/30'
               }`}>
-                <svg className="w-7 h-7 text-white transition-all duration-300 ease-in-out group-hover:scale-105" viewBox="0 0 24 24" fill="currentColor">
+                <svg className="w-6 h-6 sm:w-7 sm:h-7 text-white transition-all duration-300 ease-in-out group-hover:scale-105" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 14a3 3 0 003-3V7a3 3 0 10-6 0v4a3 3 0 003 3z"></path>
                   <path d="M19 11a1 1 0 10-2 0 5 5 0 11-10 0 1 1 0 10-2 0 7 7 0 0012 4.9V17a1 1 0 112 0v-1.1A7 7 0 0019 11z"></path>
                 </svg>
               </div>
               <div>
-                <div className="text-sm text-black/70 dark:text-white/70">Duración</div>
-                <div className="text-2xl font-semibold transition-all duration-300 ease-in-out group-hover:text-brand">{formatElapsed(elapsedMs)}</div>
+                <div className="text-xs sm:text-sm text-black/70 dark:text-white/70">Duración</div>
+                <div className="text-xl sm:text-2xl font-semibold transition-all duration-300 ease-in-out group-hover:text-brand">{formatElapsed(elapsedMs)}</div>
               </div>
             </div>
 
-            <div className="mt-6">
-              <div className="text-sm text-black/70 dark:text-white/70 mb-3">Nivel de audio</div>
-              <div className="h-3 w-full bg-black/10 dark:bg-white/10 rounded-full overflow-hidden border border-black/10 dark:border-white/10">
+            <div className="mt-4 sm:mt-6">
+              <div className="text-xs sm:text-sm text-black/70 dark:text-white/70 mb-2 sm:mb-3">Nivel de audio</div>
+              <div className="h-2 sm:h-3 w-full bg-black/10 dark:bg-white/10 rounded-full overflow-hidden border border-black/10 dark:border-white/10">
                 <div 
                   className="h-full bg-gradient-to-r from-brand to-cyan-400 transition-all duration-300 ease-in-out" 
                   style={{ width: `${Math.round(meterLevel * 100)}%` }}
@@ -396,86 +396,86 @@ export default function RecordPage() {
               </div>
             </div>
 
-            <div className="mt-8 space-y-3">
+            <div className="mt-6 sm:mt-8 space-y-2 sm:space-y-3">
               {/* Primary action row */}
-              <div className="flex gap-3">
+              <div className="flex gap-2 sm:gap-3">
                 {!isRecording ? (
                   <button 
                     onClick={startRecording} 
-                    className="group flex-1 px-4 py-2 rounded-2xl bg-brand text-white font-medium shadow-lg transition-all duration-300 ease-in-out hover:brightness-110 hover:shadow-xl hover:shadow-brand/30 active:scale-95"
+                    className="group flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-2xl bg-brand text-white font-medium shadow-lg transition-all duration-300 ease-in-out hover:brightness-110 hover:shadow-xl hover:shadow-brand/30 active:scale-95 text-sm sm:text-base"
                   >
                     Iniciar
                   </button>
                 ) : isPaused ? (
                   <button 
                     onClick={resumeRecording} 
-                    className="group flex-1 px-4 py-2 rounded-2xl bg-brand text-white font-medium shadow-lg transition-all duration-300 ease-in-out hover:brightness-110 hover:shadow-xl hover:shadow-brand/30 active:scale-95"
+                    className="group flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-2xl bg-brand text-white font-medium shadow-lg transition-all duration-300 ease-in-out hover:brightness-110 hover:shadow-xl hover:shadow-brand/30 active:scale-95 text-sm sm:text-base"
                   >
                     Reanudar
                   </button>
                 ) : (
                   <button 
                     onClick={pauseRecording} 
-                    className="group flex-1 px-4 py-2 rounded-2xl bg-black/20 dark:bg-white/20 text-black dark:text-white font-medium border border-black/10 dark:border-white/10 transition-all duration-300 ease-in-out hover:bg-black/30 dark:hover:bg-white/30 hover:shadow-md active:scale-95"
+                    className="group flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-2xl bg-black/20 dark:bg-white/20 text-black dark:text-white font-medium border border-black/10 dark:border-white/10 transition-all duration-300 ease-in-out hover:bg-black/30 dark:hover:bg-white/30 hover:shadow-md active:scale-95 text-sm sm:text-base"
                   >
                     Pausar
                   </button>
                 )}
                 <button 
                   onClick={stopRecording} 
-                  className="group flex-1 px-4 py-2 rounded-2xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur text-black dark:text-white font-medium transition-all duration-300 ease-in-out hover:bg-white/70 dark:hover:bg-white/8 hover:border-brand/20 hover:shadow-md active:scale-95"
+                  className="group flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-2xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur text-black dark:text-white font-medium transition-all duration-300 ease-in-out hover:bg-white/70 dark:hover:bg-white/8 hover:border-brand/20 hover:shadow-md active:scale-95 text-sm sm:text-base"
                 >
                   Detener
                 </button>
               </div>
               
               {/* Secondary actions row */}
-              <div className="flex gap-3">
+              <div className="flex gap-2 sm:gap-3">
                 <button 
                   onClick={downloadAudio} 
-                  className="group flex-1 px-4 py-2 rounded-2xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur text-black dark:text-white font-medium transition-all duration-300 ease-in-out hover:bg-white/70 dark:hover:bg-white/8 hover:border-brand/20 hover:shadow-md active:scale-95"
+                  className="group flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-2xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur text-black dark:text-white font-medium transition-all duration-300 ease-in-out hover:bg-white/70 dark:hover:bg-white/8 hover:border-brand/20 hover:shadow-md active:scale-95 text-sm sm:text-base"
                 >
                   Descargar
                 </button>
                 <button 
                   onClick={transcribeFullRecording} 
-                  className="group flex-1 px-4 py-2 rounded-2xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur text-black dark:text-white font-medium transition-all duration-300 ease-in-out hover:bg-white/70 dark:hover:bg-white/8 hover:border-brand/20 hover:shadow-md active:scale-95"
+                  className="group flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-2xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur text-black dark:text-white font-medium transition-all duration-300 ease-in-out hover:bg-white/70 dark:hover:bg-white/8 hover:border-brand/20 hover:shadow-md active:scale-95 text-sm sm:text-base"
                 >
                   Transcribir
                 </button>
               </div>
             </div>
 
-            <div className="mt-4 text-xs text-black/60 dark:text-white/60">
+            <div className="mt-3 sm:mt-4 text-xs text-black/60 dark:text-white/60 leading-relaxed">
               Los fragmentos de audio se envían al backend automáticamente.
             </div>
           </section>
 
           {/* Live transcription */}
-          <section className="group lg:col-span-2 rounded-2xl border border-black/10 dark:border-white/10 p-6 bg-white/60 dark:bg-white/5 backdrop-blur transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-brand/5 hover:border-brand/15 dark:hover:border-brand/20 hover:bg-white/70 dark:hover:bg-white/8 flex flex-col min-h-0">
-            <div className="flex items-center justify-between">
+          <section className="group lg:col-span-2 rounded-2xl border border-black/10 dark:border-white/10 p-4 sm:p-6 bg-white/60 dark:bg-white/5 backdrop-blur transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-brand/5 hover:border-brand/15 dark:hover:border-brand/20 hover:bg-white/70 dark:hover:bg-white/8 flex flex-col min-h-0">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
               <div>
-                <h3 className="text-lg font-semibold transition-all duration-300 ease-in-out group-hover:text-brand">Transcripción en vivo</h3>
-                <p className="text-sm text-black/70 dark:text-white/70">Texto generado en tiempo real durante la consulta</p>
+                <h3 className="text-base sm:text-lg font-semibold transition-all duration-300 ease-in-out group-hover:text-brand">Transcripción en vivo</h3>
+                <p className="text-xs sm:text-sm text-black/70 dark:text-white/70">Texto generado en tiempo real durante la consulta</p>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 justify-end">
                 <button 
                   onClick={clearTranscript} 
-                  className="group px-3 py-2 rounded-2xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur text-black dark:text-white font-medium transition-all duration-300 ease-in-out hover:bg-white/70 dark:hover:bg-white/8 hover:border-brand/20 hover:shadow-md active:scale-95"
+                  className="group px-3 py-2 rounded-2xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur text-black dark:text-white font-medium transition-all duration-300 ease-in-out hover:bg-white/70 dark:hover:bg-white/8 hover:border-brand/20 hover:shadow-md active:scale-95 text-sm"
                 >
                   Limpiar
                 </button>
                 <button 
                   onClick={copyTranscript} 
-                  className="group px-3 py-2 rounded-2xl bg-brand text-white font-medium shadow-lg transition-all duration-300 ease-in-out hover:brightness-110 hover:shadow-xl hover:shadow-brand/30 active:scale-95"
+                  className="group px-3 py-2 rounded-2xl bg-brand text-white font-medium shadow-lg transition-all duration-300 ease-in-out hover:brightness-110 hover:shadow-xl hover:shadow-brand/30 active:scale-95 text-sm"
                 >
                   Copiar
                 </button>
               </div>
             </div>
 
-            <div className="mt-6 flex-1 min-h-0 overflow-auto rounded-xl border border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur p-4">
-              <p className="whitespace-pre-wrap text-black dark:text-white leading-relaxed">
+            <div className="mt-4 sm:mt-6 flex-1 min-h-0 overflow-auto rounded-xl border border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur p-3 sm:p-4">
+              <p className="whitespace-pre-wrap text-black dark:text-white leading-relaxed text-sm sm:text-base">
                 {transcript || <span className="text-black/50 dark:text-white/50">La transcripción aparecerá aquí…</span>}
                 {interimTranscript && (
                   <span className="opacity-60 text-brand"> {interimTranscript}</span>
@@ -484,21 +484,21 @@ export default function RecordPage() {
             </div>
 
             {!recognitionSupported && (
-              <div className="mt-3 text-xs text-black/60 dark:text-white/60">
+              <div className="mt-3 text-xs text-black/60 dark:text-white/60 leading-relaxed">
                 Consejo: Conecte un servicio de transcripción (SSE/WebSocket) y añada actualizaciones al estado de transcripción en tiempo real.
               </div>
             )}
 
             {/* Summary output */}
-            <div className="mt-6 flex-shrink-0">
-              <div className="flex items-center justify-between">
-                <h4 className="text-lg font-semibold transition-all duration-300 ease-in-out group-hover:text-brand">Resumen</h4>
+            <div className="mt-4 sm:mt-6 flex-shrink-0">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+                <h4 className="text-base sm:text-lg font-semibold transition-all duration-300 ease-in-out group-hover:text-brand">Resumen</h4>
                 {isSummarizing && (
-                  <span className="text-sm text-brand animate-pulse">Generando resumen…</span>
+                  <span className="text-xs sm:text-sm text-brand animate-pulse">Generando resumen…</span>
                 )}
               </div>
-              <div className="mt-3 rounded-xl border border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur p-4 min-h-[100px] max-h-32 overflow-auto">
-                <p className="whitespace-pre-wrap text-black dark:text-white leading-relaxed text-sm">
+              <div className="mt-3 rounded-xl border border-black/10 dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur p-3 sm:p-4 min-h-[100px] max-h-32 overflow-auto">
+                <p className="whitespace-pre-wrap text-black dark:text-white leading-relaxed text-xs sm:text-sm">
                   {summaryText || <span className="text-black/50 dark:text-white/50">Genere la transcripción para obtener un resumen.</span>}
                 </p>
               </div>

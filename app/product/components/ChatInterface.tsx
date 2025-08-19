@@ -300,18 +300,18 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
   return (
     <div className="flex flex-col h-full w-full overflow-hidden min-h-0">
       {/* Chat Header */}
-      <div className="flex-shrink-0 bg-white/60 dark:bg-white/5 backdrop-blur border-b border-black/10 dark:border-white/10 px-6 py-4">
+      <div className="flex-shrink-0 bg-white/60 dark:bg-white/5 backdrop-blur border-b border-black/10 dark:border-white/10 px-4 sm:px-6 py-3 sm:py-4">
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-semibold transition-all duration-300 ease-in-out">Medical Consultation</h2>
-            <p className="text-sm text-black/70 dark:text-white/70">AI Assistant for Healthcare Professionals</p>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-base sm:text-lg font-semibold transition-all duration-300 ease-in-out truncate">Medical Consultation</h2>
+            <p className="text-xs sm:text-sm text-black/70 dark:text-white/70 truncate">AI Assistant for Healthcare Professionals</p>
           </div>
-          <div className="flex items-center space-x-3">
-            <details ref={configDetailsRef} className="relative mr-2 group">
+          <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-3">
+            <details ref={configDetailsRef} className="relative mr-1 sm:mr-2 group">
             <summary
               className={`${configLocked || chatLocked
-                ? 'flex items-center gap-2 select-none text-sm px-3 py-2 rounded-lg border transition cursor-not-allowed text-black/50 dark:text-white/50 bg-black/10 dark:bg-white/10 border-black/10 dark:border-white/10'
-                : 'group flex items-center gap-2 cursor-pointer select-none text-sm text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white px-3 py-2 rounded-lg border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur hover:bg-white/70 dark:hover:bg-white/8 hover:border-black/20 dark:hover:border-white/20 transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-md'
+                ? 'flex items-center gap-1 sm:gap-2 select-none text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border transition cursor-not-allowed text-black/50 dark:text-white/50 bg-black/10 dark:bg-white/10 border-black/10 dark:border-white/10'
+                : 'group flex items-center gap-1 sm:gap-2 cursor-pointer select-none text-xs sm:text-sm text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur hover:bg-white/70 dark:hover:bg-white/8 hover:border-black/20 dark:hover:border-white/20 transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-md'
               }`}
               onClick={(e) => {
                 if (configLocked || chatLocked) {
@@ -334,12 +334,12 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
                   <circle cx="12" cy="12" r="3" />
                   <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 008.6 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H2a2 2 0 010-4h.09A1.65 1.65 0 003.6 8.6a1.65 1.65 0 00-.33-1.82l-.06-.06A2 2 0 016.04 3.9l.06.06A1.65 1.65 0 008 4.29 1.65 1.65 0 009 2.78V2a2 2 0 014 0v.09A1.65 1.65 0 0015.4 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82 1.65 1.65 0 001.51 1H22a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
                 </svg>
-                <span>Configuración</span>
+                <span className="hidden sm:inline">Configuración</span>
               </summary>
-              <div className="absolute right-0 mt-2 z-20 w-[38rem] max-w-[90vw] rounded-xl border border-slate-200 bg-white shadow-2xl">
+              <div className="fixed inset-x-2 top-16 z-20 sm:absolute sm:right-0 sm:inset-x-auto sm:top-auto sm:mt-2 w-auto sm:w-[38rem] sm:max-w-[90vw] rounded-xl border border-slate-200 bg-white shadow-2xl max-h-[calc(100vh-5rem)] overflow-y-auto">
                 <div className="relative">
                   <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-400 via-sky-400 to-violet-500" />
-                  <div className="p-4">
+                  <div className="p-3 sm:p-4">
                     <div className="mb-3 flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-medium text-slate-700">Modo</span>
@@ -373,12 +373,12 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4">
                       <div className="rounded-lg border border-slate-200 p-3 bg-slate-50">
                         <label className="block text-xs font-medium text-slate-700 mb-1">Formato del resumen</label>
                         <textarea
                           className="w-full text-xs font-mono border border-slate-300 rounded-md p-2 text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                          rows={10}
+                          rows={4}
                           placeholder={`Ejemplo:\nMOTIVO DE CONSULTA:\n\nANTECEDENTES PERSONALES:\n...`}
                           value={summaryFormat}
                           onChange={(e) => setSummaryFormat(e.target.value)}
@@ -394,7 +394,7 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
                         <label className="block text-xs font-medium text-slate-700 mb-1">Información clave a priorizar</label>
                         <textarea
                           className="w-full text-xs border border-slate-300 rounded-md p-2 text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                          rows={10}
+                          rows={4}
                           placeholder={`Ejemplo:\n- Síntomas clave (inicio, duración, intensidad, localización...)\n- Banderas rojas\n- Antecedentes y riesgos pertinentes`}
                           value={keyInfo}
                           onChange={(e) => setKeyInfo(e.target.value)}
@@ -423,7 +423,7 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
                   </div>
                 </div>
 
-                    <div className="mt-4 flex items-center justify-between">
+                    <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
                       <div className="text-[11px] text-slate-500">Los cambios se aplican automáticamente al próximo resumen.</div>
                       <div className="flex items-center gap-2">
                         <button
@@ -457,13 +457,13 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
                 setIsLoading(false);
               }}
               disabled={isLoading || chatLocked}
-              className="group px-3 py-2 text-sm bg-brand text-white rounded-lg shadow-lg transition-all duration-300 ease-in-out hover:brightness-110 hover:shadow-xl hover:shadow-brand/30 hover:scale-105 disabled:bg-black/20 dark:disabled:bg-white/20 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none active:scale-95"
+              className="group px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm bg-brand text-white rounded-lg shadow-lg transition-all duration-300 ease-in-out hover:brightness-110 hover:shadow-xl hover:shadow-brand/30 hover:scale-105 disabled:bg-black/20 dark:disabled:bg-white/20 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none active:scale-95"
             >
               Generar Resumen
             </button>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1 sm:space-x-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-lg shadow-green-500/50"></div>
-              <span className="text-sm text-black/70 dark:text-white/70">AI Online</span>
+              <span className="text-xs sm:text-sm text-black/70 dark:text-white/70 hidden sm:inline">AI Online</span>
             </div>
           </div>
           </div>
@@ -574,23 +574,23 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-4 min-h-0">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-2 sm:px-4 lg:px-6 py-3 sm:py-4 min-h-0">
         {mounted && messages
           .filter((m) => m.role !== 'system' && (!summaryDraft || m.content !== summaryDraft))
           .map((message, index) => (
             <ChatMessage key={index} message={message} />
           ))}
         {isLoading && (
-          <div className="flex justify-start mb-6">
-            <div className="flex max-w-3xl">
-              <div className="flex-shrink-0 mr-3">
-                <div className="w-8 h-8 bg-brand rounded-full flex items-center justify-center shadow-lg shadow-brand/30">
-                  <svg className="w-5 h-5 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex justify-start mb-4 sm:mb-6 px-2 sm:px-0">
+            <div className="flex max-w-[90%] sm:max-w-2xl lg:max-w-3xl">
+              <div className="flex-shrink-0 mr-2 sm:mr-3">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-brand rounded-full flex items-center justify-center shadow-lg shadow-brand/30">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
                 </div>
               </div>
-              <div className="bg-white/60 dark:bg-white/5 backdrop-blur border border-black/10 dark:border-white/10 rounded-2xl p-4 shadow-lg">
+              <div className="bg-white/60 dark:bg-white/5 backdrop-blur border border-black/10 dark:border-white/10 rounded-2xl p-3 sm:p-4 shadow-lg">
                 <div className="flex space-x-1">
                   <div className="w-2 h-2 bg-brand/60 rounded-full animate-bounce"></div>
                   <div className="w-2 h-2 bg-brand/60 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
