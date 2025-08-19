@@ -298,20 +298,20 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
   };
 
   return (
-    <div className="flex flex-col h-full bg-gray-50">
+    <div className="flex flex-col h-full w-full overflow-hidden min-h-0">
       {/* Chat Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+      <div className="flex-shrink-0 bg-white/60 dark:bg-white/5 backdrop-blur border-b border-black/10 dark:border-white/10 px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">Medical Consultation</h2>
-            <p className="text-sm text-gray-500">AI Assistant for Healthcare Professionals</p>
+            <h2 className="text-lg font-semibold transition-all duration-300 ease-in-out">Medical Consultation</h2>
+            <p className="text-sm text-black/70 dark:text-white/70">AI Assistant for Healthcare Professionals</p>
           </div>
           <div className="flex items-center space-x-3">
             <details ref={configDetailsRef} className="relative mr-2 group">
             <summary
               className={`${configLocked || chatLocked
-                ? 'flex items-center gap-2 select-none text-sm px-3 py-2 rounded-lg border transition cursor-not-allowed text-gray-600 bg-gray-300 border-gray-300 hover:bg-gray-300 hover:text-gray-600'
-                : 'flex items-center gap-2 cursor-pointer select-none text-sm text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 transition'
+                ? 'flex items-center gap-2 select-none text-sm px-3 py-2 rounded-lg border transition cursor-not-allowed text-black/50 dark:text-white/50 bg-black/10 dark:bg-white/10 border-black/10 dark:border-white/10'
+                : 'group flex items-center gap-2 cursor-pointer select-none text-sm text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white px-3 py-2 rounded-lg border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur hover:bg-white/70 dark:hover:bg-white/8 hover:border-black/20 dark:hover:border-white/20 transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-md'
               }`}
               onClick={(e) => {
                 if (configLocked || chatLocked) {
@@ -457,13 +457,13 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
                 setIsLoading(false);
               }}
               disabled={isLoading || chatLocked}
-              className="px-3 py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              className="group px-3 py-2 text-sm bg-brand text-white rounded-lg shadow-lg transition-all duration-300 ease-in-out hover:brightness-110 hover:shadow-xl hover:shadow-brand/30 hover:scale-105 disabled:bg-black/20 dark:disabled:bg-white/20 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none active:scale-95"
             >
               Generar Resumen
             </button>
             <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="text-sm text-gray-600">AI Online</span>
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-lg shadow-green-500/50"></div>
+              <span className="text-sm text-black/70 dark:text-white/70">AI Online</span>
             </div>
           </div>
           </div>
@@ -574,7 +574,7 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-6 py-4">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-4 min-h-0">
         {mounted && messages
           .filter((m) => m.role !== 'system' && (!summaryDraft || m.content !== summaryDraft))
           .map((message, index) => (
@@ -584,17 +584,17 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
           <div className="flex justify-start mb-6">
             <div className="flex max-w-3xl">
               <div className="flex-shrink-0 mr-3">
-                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                <div className="w-8 h-8 bg-brand rounded-full flex items-center justify-center shadow-lg shadow-brand/30">
                   <svg className="w-5 h-5 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
                 </div>
               </div>
-              <div className="bg-white border border-gray-200 rounded-2xl p-4">
+              <div className="bg-white/60 dark:bg-white/5 backdrop-blur border border-black/10 dark:border-white/10 rounded-2xl p-4 shadow-lg">
                 <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  <div className="w-2 h-2 bg-brand/60 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-brand/60 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-2 h-2 bg-brand/60 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                 </div>
               </div>
             </div>

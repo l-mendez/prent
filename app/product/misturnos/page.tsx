@@ -169,65 +169,97 @@ export default function MisTurnosPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="relative h-screen w-screen overflow-hidden flex flex-col">
+      {/* Background effects similar to marketing page */}
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(40%_30%_at_50%_-10%,theme(colors.brand/20),transparent_60%),radial-gradient(30%_20%_at_80%_10%,theme(colors.cyan.400/20),transparent_60%)]" />
+      <div className="pointer-events-none absolute -top-20 -left-20 h-72 w-72 rounded-full bg-brand/20 blur-3xl animate-floaty-slow" />
+      <div className="pointer-events-none absolute top-40 -right-16 h-80 w-80 rounded-full bg-cyan-400/20 blur-3xl animate-floaty-slow" />
+      
       <Header />
-      <main className="max-w-7xl mx-auto px-6 py-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Calendario de Turnos</h2>
-            <p className="text-gray-500">Vista semanal del consultorio (Lun - Vie)</p>
+      <main className="flex-1 max-w-7xl mx-auto px-6 py-8 overflow-hidden flex flex-col min-h-0">
+        <div className="mb-6 text-center flex-shrink-0">
+          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">
+            Calendario de <span className="bg-gradient-to-r from-brand to-cyan-400 bg-clip-text text-transparent">Turnos</span>
+          </h1>
+          <p className="mt-2 text-sm sm:text-base text-black/70 dark:text-white/70 max-w-2xl mx-auto">
+            Vista semanal del consultorio con gestión inteligente de citas (Lun - Vie)
+          </p>
+        </div>
+
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4 flex-shrink-0">
+          <div className="text-black/70 dark:text-white/70" suppressHydrationWarning>
+            <span className="font-medium">Semana:</span> {monday ? formatWeekRangeText(monday) : '—'}
           </div>
-          <div className="flex items-center gap-2">
-            <button onClick={previousWeek} className="px-3 py-2 rounded-lg border text-gray-700 hover:bg-gray-100">← Semana anterior</button>
-            <button onClick={thisWeek} className="px-3 py-2 rounded-lg border text-gray-700 hover:bg-gray-100">Esta semana</button>
-            <button onClick={nextWeek} className="px-3 py-2 rounded-lg border text-gray-700 hover:bg-gray-100">Semana siguiente →</button>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={previousWeek} 
+              className="group px-4 py-2 rounded-2xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur text-black dark:text-white font-medium transition-all duration-300 ease-in-out hover:bg-white/70 dark:hover:bg-white/8 hover:border-brand/20 hover:shadow-md active:scale-95"
+            >
+              ← Anterior
+            </button>
+            <button 
+              onClick={thisWeek} 
+              className="group px-4 py-2 rounded-2xl bg-brand text-white font-medium shadow-lg transition-all duration-300 ease-in-out hover:brightness-110 hover:shadow-xl hover:shadow-brand/30 active:scale-95"
+            >
+              Esta semana
+            </button>
+            <button 
+              onClick={nextWeek} 
+              className="group px-4 py-2 rounded-2xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur text-black dark:text-white font-medium transition-all duration-300 ease-in-out hover:bg-white/70 dark:hover:bg-white/8 hover:border-brand/20 hover:shadow-md active:scale-95"
+            >
+              Siguiente →
+            </button>
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-4">
-          <div className="text-gray-600" suppressHydrationWarning>
-            <span className="font-medium">Semana:</span> {monday ? formatWeekRangeText(monday) : '—'}
-          </div>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 flex-shrink-0">
           <div className="flex items-center gap-3">
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar por paciente o info…"
-              className="w-full md:w-80 rounded-lg border-gray-300 focus-medical px-3 py-2"
+              className="w-full md:w-80 px-4 py-3 border border-black/10 dark:border-white/10 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 bg-white/60 dark:bg-white/5 backdrop-blur transition-all duration-300 ease-in-out hover:bg-white/70 dark:hover:bg-white/8"
             />
-            <div className="hidden md:flex items-center gap-2 text-xs text-gray-500">
-              <span className="inline-block w-3 h-3 rounded-sm bg-emerald-500"></span> Ocupado
-              <span className="inline-block w-3 h-3 rounded-sm bg-white border border-dashed border-gray-300"></span> Libre
+          </div>
+          <div className="flex items-center gap-4 text-sm text-black/70 dark:text-white/70">
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-3 h-3 rounded-sm bg-brand shadow-lg shadow-brand/30"></span> 
+              <span>Ocupado</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-3 h-3 rounded-sm bg-white/60 dark:bg-white/10 border border-dashed border-black/20 dark:border-white/20"></span> 
+              <span>Libre</span>
             </div>
           </div>
         </div>
 
         {fetchState.loading || !monday ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-brand/20 border-t-brand"></div>
           </div>
         ) : fetchState.error ? (
-          <div className="p-4 bg-red-50 text-red-700 rounded-lg border border-red-200">
+          <div className="p-4 rounded-2xl border border-red-300/30 bg-red-50/80 dark:bg-red-900/20 backdrop-blur text-red-700 dark:text-red-300 shadow-lg">
             {fetchState.error}
           </div>
         ) : (
-          <div className="border border-gray-200 rounded-xl overflow-hidden bg-white medical-shadow">
+          <div className="flex-1 rounded-2xl border border-black/10 dark:border-white/10 overflow-hidden bg-white/60 dark:bg-white/5 backdrop-blur shadow-lg min-h-0 flex flex-col">
             {/* Column headers */}
-            <div className="grid grid-cols-6 text-sm bg-gray-50 border-b border-gray-200">
-              <div className="px-3 py-2 text-gray-500">Hora</div>
+            <div className="grid grid-cols-6 text-sm bg-white/40 dark:bg-white/5 border-b border-black/10 dark:border-white/10 flex-shrink-0" style={{ minWidth: '800px' }}>
+              <div className="px-3 py-2 text-black/70 dark:text-white/70 font-medium" style={{ width: '120px' }}>Hora</div>
               {days.map((d) => (
-                <div key={d.toISOString()} className="px-3 py-2 font-medium text-gray-700">
+                <div key={d.toISOString()} className="px-3 py-2 font-semibold text-black dark:text-white" style={{ width: '136px' }}>
                   {formatHumanDate(d)}
                 </div>
               ))}
             </div>
 
             {/* Grid */}
-            <div className="grid grid-cols-6">
+            <div className="flex-1 overflow-auto">
+              <div className="grid grid-cols-6" style={{ minWidth: '800px' }}>
               {/* Time column */}
-              <div className="bg-gray-50 border-r border-gray-200">
+              <div className="bg-white/40 dark:bg-white/5 border-r border-black/10 dark:border-white/10">
                 {slots.map((slot) => (
-                  <div key={slot} className="h-14 text-xs text-gray-500 px-3 py-2 border-b border-gray-100 flex items-start">
+                  <div key={slot} className="h-14 text-xs text-black/60 dark:text-white/60 px-3 py-2 border-b border-black/5 dark:border-white/5 flex items-start font-medium">
                     {timeLabel(slot)}
                   </div>
                 ))}
@@ -235,13 +267,13 @@ export default function MisTurnosPage() {
 
               {/* Day columns */}
               {dayKeys.map((dayKey) => (
-                <div key={dayKey} className="border-r last:border-r-0 border-gray-200">
+                <div key={dayKey} className="border-r last:border-r-0 border-black/10 dark:border-white/10">
                   {slots.map((slot) => {
                     const items = turnosByDateAndTime.get(dayKey)?.get(slot) ?? [];
                     if (items.length === 0) {
                       return (
-                        <div key={slot} className="h-14 border-b border-gray-100 bg-white">
-                          <div className="h-full w-full border border-dashed border-transparent hover:border-gray-200 transition-colors"></div>
+                        <div key={slot} className="h-14 border-b border-black/5 dark:border-white/5 bg-white/20 dark:bg-white/5">
+                          <div className="h-full w-full border border-dashed border-transparent hover:border-black/20 dark:hover:border-white/20 transition-colors"></div>
                         </div>
                       );
                     }
@@ -255,7 +287,7 @@ export default function MisTurnosPage() {
                       return a.id - b.id;
                     });
                     return (
-                      <div key={slot} className="h-14 border-b border-gray-100 px-2 py-2">
+                      <div key={slot} className="h-14 border-b border-black/5 dark:border-white/5 px-2 py-2">
                         {ordered.map((t) => (
                           <div
                             key={t.id}
@@ -268,14 +300,14 @@ export default function MisTurnosPage() {
                                 setOpenTurnoId((prev) => (prev === t.id ? null : t.id));
                               }
                             }}
-                            className="cursor-pointer group w-full rounded-lg bg-emerald-500 text-white px-3 py-2 flex flex-col justify-center medical-shadow hover:bg-emerald-600 hover:scale-105 hover:shadow-lg transition-all duration-200 ease-in-out active:scale-95"
+                            className="cursor-pointer group w-full rounded-xl bg-brand text-white px-3 py-2 flex flex-col justify-center shadow-lg shadow-brand/30 hover:brightness-110 hover:shadow-xl hover:shadow-brand/40 transition-all duration-300 ease-in-out active:scale-95"
                           >
                             <div className="text-sm font-semibold truncate">{t.paciente ?? 'Sin nombre'}</div>
                             {compactInfo(t.info) && (
                               <div className="text-xs opacity-90 truncate">{compactInfo(t.info)}</div>
                             )}
                             {openTurnoId === t.id && (
-                              <div className="mt-2 text-xs bg-white text-gray-800 border border-gray-200 rounded-md px-2 py-2 shadow-sm max-h-40 overflow-auto whitespace-pre-wrap">
+                              <div className="mt-2 text-xs bg-white/90 dark:bg-white/10 text-black dark:text-white border border-black/10 dark:border-white/10 rounded-lg px-2 py-2 shadow-lg backdrop-blur max-h-40 overflow-auto whitespace-pre-wrap">
                                 {fullInfo(t.info) || 'Sin descripción'}
                               </div>
                             )}
@@ -286,6 +318,7 @@ export default function MisTurnosPage() {
                   })}
                 </div>
               ))}
+              </div>
             </div>
           </div>
         )}
@@ -293,5 +326,3 @@ export default function MisTurnosPage() {
     </div>
   );
 }
-
-

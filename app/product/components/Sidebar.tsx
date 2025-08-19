@@ -20,22 +20,36 @@ export default function Sidebar() {
   }, []);
 
   return (
-    <div className="w-80 bg-gray-50 border-r border-gray-200 flex flex-col h-full">
+    <div className="w-80 bg-white/60 dark:bg-white/5 backdrop-blur border-r border-black/10 dark:border-white/10 flex flex-col h-full flex-shrink-0 overflow-hidden">
       {/* New Chat Button */}
       <div className="p-4">
-        <button className="w-full bg-blue-600 text-white rounded-lg py-3 px-4 font-medium hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button className="group w-full bg-brand text-white rounded-2xl py-3 px-4 font-medium shadow-lg transition-all duration-300 ease-in-out hover:brightness-110 hover:scale-105 hover:shadow-xl hover:shadow-brand/30 active:scale-95 flex items-center justify-center space-x-2">
+          <svg className="w-5 h-5 transition-all duration-300 ease-in-out group-hover:scale-105" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           <span>New Consultation</span>
         </button>
       </div>
 
+      {/* Conversations List */}
+      <div className="flex-1 px-4 pb-4 space-y-2 overflow-y-auto overflow-x-hidden min-h-0">
+        {conversations.map((conversation) => (
+          <div 
+            key={conversation.id} 
+            className="group p-3 rounded-xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-brand/5 hover:-translate-y-0.5 hover:border-brand/15 dark:hover:border-brand/20 hover:bg-white/70 dark:hover:bg-white/8 active:scale-98 cursor-pointer"
+          >
+            <h4 className="font-medium text-sm transition-all duration-300 ease-in-out group-hover:text-brand truncate">{conversation.title}</h4>
+            <p className="text-xs text-black/70 dark:text-white/70 mt-1 transition-all duration-300 ease-in-out group-hover:text-black/80 dark:group-hover:text-white/85 line-clamp-2">{conversation.preview}</p>
+            <p className="text-xs text-black/50 dark:text-white/50 mt-2 transition-all duration-300 ease-in-out group-hover:text-black/60 dark:group-hover:text-white/60 truncate">{conversation.timestamp}</p>
+          </div>
+        ))}
+      </div>
+
       {/* Footer */}
-      <div className="p-4 border-t border-gray-200">
-        <div className="text-xs text-gray-500 text-center">
-          <p>Prent AI v1.0</p>
-          <p className="mt-1">For medical professionals only</p>
+      <div className="p-4 border-t border-black/10 dark:border-white/10">
+        <div className="text-xs text-black/70 dark:text-white/70 text-center">
+          <p className="font-medium">Prent AI v1.0</p>
+          <p className="mt-1 text-black/50 dark:text-white/50">For medical professionals only</p>
         </div>
       </div>
     </div>
