@@ -22,8 +22,8 @@ export default function Home() {
               {t('hero.description')}
             </p>
             <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <a 
-                href="#demo" 
+              <Link 
+                href="/product" 
                 className="group inline-flex items-center justify-center rounded-full bg-brand px-6 sm:px-8 py-3 sm:py-4 text-white font-medium shadow-lg transition-all duration-500 ease-in-out hover:brightness-110 hover:scale-105 hover:shadow-xl hover:shadow-brand/30 active:scale-95 text-sm sm:text-base"
               >
                 <span>{t('hero.demo')}</span>
@@ -36,7 +36,7 @@ export default function Home() {
                 >
                   <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-              </a>
+              </Link>
               <a href="#how" className="inline-flex items-center justify-center rounded-full border border-black/10 dark:border-white/20 px-6 sm:px-8 py-3 sm:py-4 font-medium transition-all duration-500 ease-in-out hover:bg-black/5 dark:hover:bg-white/5 hover:border-black/20 dark:hover:border-white/30 hover:scale-105 hover:shadow-lg active:scale-95 text-sm sm:text-base">
                 {t('hero.how')}
               </a>
@@ -157,10 +157,9 @@ export default function Home() {
           <div className="relative z-10">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight transition-colors duration-300 ease-out group-hover:text-brand">{t('cta.title')}</h2>
             <p className="mt-2 sm:mt-4 text-sm sm:text-base text-black/70 dark:text-white/70 transition-colors duration-300 ease-out group-hover:text-black dark:group-hover:text-white leading-relaxed">{t('cta.description')}</p>
-            <a
-              href="mailto:lmendez@itba.edu.ar?subject=Demo%20Request%20-%20Prent%20AI"
+            <Link
+              href="/product"
               className="mt-6 sm:mt-8 inline-flex items-center justify-center rounded-full bg-brand px-6 sm:px-8 py-3 sm:py-4 text-white font-medium shadow-lg transition-all duration-200 ease-out hover:brightness-110 hover:shadow-xl hover:shadow-brand/30 hover:scale-105 active:scale-95 text-sm sm:text-base"
-              onClick={(e) => e.stopPropagation()}
             >
               <span>{t('cta.demo')}</span>
               <svg 
@@ -172,7 +171,7 @@ export default function Home() {
               >
                 <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-            </a>
+            </Link>
           </div>
         </div>
       </section>

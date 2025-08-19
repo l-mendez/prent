@@ -18,13 +18,13 @@ const translations = {
     'nav.solutions': 'Solutions',
     'nav.how': 'How it works',
     'nav.contact': 'Contact',
-    'nav.demo': 'Book a demo',
+    'nav.demo': 'Demo',
     
     // Hero section
     'hero.title': 'AI Solutions for',
     'hero.title.hospitals': 'hospitals',
     'hero.description': 'Prent AI streamlines patient flow, reduces operational delays, and uncovers revenue integrity opportunities across your hospital network. We are a team of engineers that are passionate about using AI to improve the quality of care.',
-    'hero.demo': 'Book a demo',
+    'hero.demo': 'Demo',
     'hero.how': 'How it works',
     
     // Value props
@@ -46,7 +46,7 @@ const translations = {
     // CTA
     'cta.title': 'See Prent AI in action',
     'cta.description': 'Request a walkthrough tailored to your hospital\'s needs.',
-    'cta.demo': 'Book a demo',
+    'cta.demo': 'Demo',
     
     // Footer
     'footer.tagline': 'AI orchestration for hospital operations.',
@@ -56,13 +56,13 @@ const translations = {
     'nav.solutions': 'Soluciones',
     'nav.how': 'Cómo funciona',
     'nav.contact': 'Contacto',
-    'nav.demo': 'Reservar demo',
+    'nav.demo': 'Demo',
     
     // Hero section
     'hero.title': 'Soluciones de IA para',
     'hero.title.hospitals': 'hospitales',
     'hero.description': 'Prent AI optimiza el flujo de pacientes, reduce los retrasos operativos y descubre oportunidades de integridad de ingresos en toda su red hospitalaria. Somos un equipo de ingenieros apasionados por usar la IA para mejorar la calidad de la atención.',
-    'hero.demo': 'Reservar demo',
+    'hero.demo': 'Demo',
     'hero.how': 'Cómo funciona',
     
     // Value props
@@ -84,7 +84,7 @@ const translations = {
     // CTA
     'cta.title': 'Prent AI en acción',
     'cta.description': 'Solicita una demostración adaptada a las necesidades de tu hospital.',
-    'cta.demo': 'Reservar demo',
+    'cta.demo': 'Demo',
     
     // Footer
     'footer.tagline': 'Orquestación de IA para operaciones hospitalarias.',
