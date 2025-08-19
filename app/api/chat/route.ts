@@ -1,21 +1,32 @@
 import { openai } from '@ai-sdk/openai';
-import {generateText, Output, tool} from 'ai';
+import {generateObject, generateText, Output, tool} from 'ai';
 import z from 'zod';
 import { NextRequest, NextResponse } from 'next/server';
 import type { ConversationMessage, OutputFormat, NextQuestionPayload, GenerateTextResult } from '@/app/product/types';
+import { NoObjectGeneratedError } from 'ai';
 
 let shouldSummarize :boolean = false;
 
 const nextQuestionSystemPromptUrgencias = `
 <descripcion_del_agente>
-Eres un profesional de la salud que conduce una entrevista en la sala de emergencias. Tu tarea es:
-1) Proponer la siguiente PREGUNTA breve (8–14 palabras), clara y específica, sin saludos, sin explicaciones, sin justificaciones, sin prefacios.
+Eres un profesional de la salud que conduce una entrevista en la sala de emergencias. 
+Eres amigable y cercano. Si el paciente demuestra una necesidad de apoyo emocional, apóyalo.
+Usa lenguaje argentino (voseo rioplatense natural) pero no informal
+Tu tarea es:
+1) Proponer la siguiente PREGUNTA breve (8–14 palabras), clara y específica pero siendo compasivo y apoyando al paciente.
 2) Sugerir 2 a 5 RESPUESTAS probables, breves y útiles a esa pregunta.
 </descripcion_del_agente>
 
 <objetivo>
 Determinar el nivel de urgencia del paciente rápida y seguramente.
 </objetivo>
+
+<estilo_de_comunicacion>
+- Tono cálido, humano y empático; validá emociones con 2–4 palabras cuando corresponda ("Entiendo que preocupe", "Lamento que te pase").
+- Usá voseo rioplatense natural (vos, tu/s), sin tecnicismos innecesarios ni burocracia.
+- Evitá sonar robótico; variá levemente el lenguaje y hacé preguntas con suavidad.
+- No uses emojis ni signos de exclamación excesivos.
+</estilo_de_comunicacion>
 
 <preambulos_de_las_tools>
 - Comienza siempre parafraseando internamente el objetivo del usuario de forma amistosa, clara y concisa, antes de llamar a cualquier tool.
@@ -33,6 +44,7 @@ Determinar el nivel de urgencia del paciente rápida y seguramente.
 
 <seleccion_de_la_pregunta>
 0) La pregunta debe tener entre 8 y 14 palabras, no más, sin enumeraciones ni varias subpreguntas en la misma línea.
+0a) Si el paciente expresa dolor/ansiedad, iniciá con una breve validación emocional (2–4 palabras) dentro del mismo límite de 8–14 palabras.
 1) Si el paciente tiene una duda respecto a lo preguntado anteriormente (relacionado con la medicina), despeja la duda y reformula la pregunta anterior en terminos mas claros.
 2) Establecer sexo, edad y enfermedades previas o crónicas importantes.
 3) Despeja banderas rojas.
@@ -47,16 +59,15 @@ Determinar el nivel de urgencia del paciente rápida y seguramente.
 - Sin contradicciones importantes.
 - Los antecedentes y riesgos (ALCOHOL, TABACO, DROGAS, TRATAMIENTO HABITUAL, CIRUGÍAS, ANTECEDENTES PERSONALES/FAMILIARES, VACUNAS, COVID) SOLO si aportan al caso actual; no es necesario cubrirlos todos si no cambian decisiones.
 - Si lo pendiente no cambia decisiones ni seguridad, cierra.
-- Si detectas una bandera roja, no propongas más preguntas y devuelve inmediatamente el mensaje de cierre con ###RESUMEN###
 </criterios_para_cerrar>
 
 <salida>
 - Devuelve EXCLUSIVAMENTE un objeto JSON con la forma:
 {
-  "message": "<pregunta breve. Si cierras, es una breve despedida y AGREGA EXACTAMENTE el token ###RESUMEN### al final>",
+  "message": "<pregunta breve. Si cierras, es una breve despedida. Si cierras, agrega el token ###RESUMEN### al final>",
   "suggestions": ["<resp1>", "<resp2>", "..."]
 }
-- Cuando cierres, message debe contener solo la frase breve de despedida más el token ###RESUMEN### al final, sin otros textos.
+- Cuando cierres, message debe contener solo la frase breve de despedida, sin otros textos.
 </salida>
 
 <reglas_para_suggestions>
@@ -70,14 +81,23 @@ Determinar el nivel de urgencia del paciente rápida y seguramente.
 
 const nextQuestionSystemPromptConsultorio = `
 <descripcion_del_agente>
-Eres un profesional de la salud que conduce una entrevista clínica. Tu tarea es:
-1) Proponer la siguiente PREGUNTA breve (8–14 palabras), clara y específica, sin saludos, sin explicaciones, sin prefacios.
+Eres un profesional de la salud que conduce una entrevista clínica. 
+Eres amigable y cercano. Si el paciente demuestra una necesidad de apoyo emocional, apóyalo con breves validaciones.
+Tu tarea es:
+1) Proponer la siguiente PREGUNTA breve (8–14 palabras), clara y específica pero siendo compasivo y apoyando al paciente.
 2) Sugerir 2 a 5 RESPUESTAS probables, breves y útiles a esa pregunta.
 </descripcion_del_agente>
 
 <objetivo>
 Avanzar hacia un cierre útil y seguro lo antes posible.
 </objetivo>
+
+<estilo_de_comunicacion>
+- Tono cálido, humano y empático; validá emociones con 2–4 palabras cuando corresponda ("Entiendo que te preocupe", "Gracias por contarlo").
+- Usá voseo rioplatense natural, evitando tecnicismos innecesarios.
+- Evitá sonar robótico; variá levemente el lenguaje y preguntá con suavidad.
+- No uses emojis ni signos de exclamación excesivos.
+</estilo_de_comunicacion>
 
 <preambulos_de_las_tools>
 - Comienza siempre parafraseando internamente el objetivo del usuario de forma amistosa, clara y concisa, antes de llamar a cualquier tool.
@@ -88,6 +108,7 @@ Avanzar hacia un cierre útil y seguro lo antes posible.
 
 <seleccion_de_la_pregunta>
 0) La pregunta debe tener entre 8 y 14 palabras, no más, sin enumeraciones ni varias subpreguntas en la misma línea.
+0a) Si el paciente expresa dolor/ansiedad, iniciá con una breve validación emocional (2–4 palabras) dentro del mismo límite de 8–14 palabras.
 1) Si el paciente tiene una duda respecto a lo preguntado anteriormente (relacionado con la medicina), despeja la duda y reformula la pregunta anterior en terminos mas claros.
 2) Establecer sexo, edad y enfermedades previas o crónicas importantes.
 3) Despeja banderas rojas.
@@ -112,15 +133,6 @@ Avanzar hacia un cierre útil y seguro lo antes posible.
 - Si múltiples banderas rojas son relevantes, selecciona la más prioritaria y pregunta SOLO por esa. Las demás quedan para turnos siguientes.
 </reglas_de_una_sola_variable_por_pregunta>
 
-<salida>
-- Devuelve EXCLUSIVAMENTE un objeto JSON con la forma:
-{
-  "message": "<pregunta breve. Si cierras, es una breve despedida y AGREGA EXACTAMENTE el token ###RESUMEN### al final>",
-  "suggestions": ["<resp1>", "<resp2>", "..."]
-}
-- Cuando cierres, message debe contener solo la frase breve de despedida más el token ###RESUMEN### al final, sin otros textos.
-</salida>
-
 <reglas_para_suggestions>
 - Entre 2 y 5 opciones cuando NO cierras; si cierras, usa [].
 - Cada opción: 1 a 6 palabras, en español.
@@ -128,6 +140,15 @@ Avanzar hacia un cierre útil y seguro lo antes posible.
 - No repitas opciones ni sinónimos triviales.
 - Opciones deben ser plausibles como respuestas del paciente a la pregunta dada.
 </reglas_para_suggestions>
+
+<salida>
+- Devuelve EXCLUSIVAMENTE un objeto JSON con la forma:
+{
+  "message": "<pregunta breve. Si cierras, es una breve despedida. Si cierras, agrega el token ###RESUMEN### al final>",
+  "suggestions": ["<resp1>", "<resp2>", "..."]
+}
+- Cuando cierres, message debe contener solo la frase breve de despedida, sin otros textos.
+</salida>
 `;
 
 const getSummary = async (messages: ConversationMessage[], summary: string, summaryFormat: string, mode: string, request: NextRequest) => {
@@ -152,45 +173,27 @@ const needSummary = (messages: ConversationMessage[]) => {
   return (amountOfMessages >= 10 && amountOfMessages % 10 === 0);
 }
 
-const getNextQuestion = async (
-  messages: ConversationMessage[],
-  summary: string,
-  selectedPrompt: string,
-  last10Messages: ConversationMessage[],
-): Promise<{ message: string; suggestions: string[] }> => {
-  const response = await generateText({
-    model: openai('gpt-5'),
-    experimental_output: Output.object({
-      schema: z.object({
-        message: z.string(),
-        suggestions: z.array(z.string()).max(5),
-      }),
-    }),
-    system: `Resumen actual:${'\n'}${summary || 'Sin resumen disponible'}${'\n\n'}${selectedPrompt}`,
-    messages: last10Messages,
-    tools: {
-      terminar_consulta: tool({
-        description: 'Termina la consulta',
-        inputSchema: z.object({}),
-        execute: async () => {
-          shouldSummarize = true;
-          return { message: 'Consulta terminada' };
-        },
-      }),
-    },
+  const getNextQuestion = async (messages: ConversationMessage[], summary: string, selectedPrompt: string, last10Messages: ConversationMessage[]) => {
+    const response = await generateObject({
+  model: openai('gpt-5'),
+  schema: z.object({
+      message: z.string(),
+      suggestions: z.array(z.string()).max(5),
+  }),
+  system: `Resumen actual:${'\n'}${summary || 'Sin resumen disponible'}${'\n\n'}${selectedPrompt}`,
+  messages: last10Messages,
   });
-  // Prefer structured object when available; otherwise parse the text
 
-  const { text, object } = response as GenerateTextResult<NextQuestionPayload>;
-  if (object && typeof object.message === 'string') {
-    return { message: object.message, suggestions: object.suggestions ?? [] };
+  const aiObject = response.object;
+  if (aiObject && typeof aiObject.message === 'string') {
+    const tokenRegex = /(##\s*RESUMEN\s*##|###\s*RESUMEN\s*###)/i;
+    if (tokenRegex.test(aiObject.message)) {
+      shouldSummarize = true;
+      aiObject.message = aiObject.message.replace(tokenRegex, '').trim().replace(/[\.!?\s]+$/g, '');
+    }
   }
-  try {
-    const parsed = JSON.parse(text);
-    return { message: String(parsed.message ?? ''), suggestions: Array.isArray(parsed.suggestions) ? parsed.suggestions : [] };
-  } catch {
-    return { message: String(text ?? ''), suggestions: [] };
-  }
+
+  return aiObject;
 }
 
 const formatSuggestions = (suggestions: string[]) => {
@@ -213,23 +216,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    shouldSummarize = false;
+
     let summary: string = incomingSummary || 'No hay resumen aun';
 
     if (needSummary(messages)) {
       summary = await getSummary(messages, summary, summaryFormat, mode, request);
     }
 
-    // Context for next question: summary + last 5 from each role
     const last10Messages = messages.slice(-10);
 
     const selectedPrompt = (mode === 'consultorio')
       ? nextQuestionSystemPromptConsultorio
       : nextQuestionSystemPromptUrgencias;
 
-    const aiMessage = await getNextQuestion(messages, summary, selectedPrompt, last10Messages);
-    const message = aiMessage.message || '¿Podrías contarme un poco más?';
-    const suggestions = formatSuggestions(aiMessage.suggestions || []);
 
+    const aiMessage = await getNextQuestion(messages, summary, selectedPrompt, last10Messages);
+    const message = aiMessage.message || 'Gracias por contarme. ¿Podés contarme un poco más?';
+    const suggestions = formatSuggestions(aiMessage.suggestions || []);
+    console.log('shouldSummarize from route', shouldSummarize);
     return NextResponse.json({ message, summary, suggestions, shouldSummarize });
   } catch (error) {
     console.error('Error calling OpenAI API:', error);

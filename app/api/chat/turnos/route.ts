@@ -35,6 +35,7 @@ Tu objetivo es reservar un turno cumpliendo las preferencias del paciente, llama
 - No anuncies acciones como "verifico" o "voy a chequear"; hacelo y contá el resultado en el mismo mensaje.
  - Prohibido narrar el plan o pasos (p. ej., "verificaré", "voy a", "procederé"). Da el resultado directamente.
 - Evitá muletillas como "Perfecto" al inicio; ve directo al punto con calidez.
+ - Mostrá empatía breve cuando corresponda ("Entiendo", "Gracias por la paciencia").
 </estilo_de_comunicación>
 
 <contexto_y_reglas_de_negocio>
@@ -152,6 +153,8 @@ export async function POST(request: NextRequest) {
 
     const response = await generateText({
         model: openai('gpt-5'),
+        temperature: 0.6,
+        presencePenalty: 0.2,
         system: nextQuestionPrompt,
         messages: messages,
         maxRetries: 2,

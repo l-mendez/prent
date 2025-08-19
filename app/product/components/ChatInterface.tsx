@@ -77,9 +77,9 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
       const next = prev === 'urgencias' ? 'consultorio' : 'urgencias';
       // Ajustar mensaje inicial según el modo seleccionado
       if (next === 'consultorio') {
-        setMessages([{ role: 'assistant', content: '¿Como puedo ayudarte a agendar tu turno?' }]);
+        setMessages([{ role: 'assistant', content: 'Hola, ¿cómo te puedo ayudar a agendar tu turno hoy?' }]);
       } else {
-        setMessages([{ role: 'assistant', content: '¿Cual es la causa de tu consulta?' }]);
+        setMessages([{ role: 'assistant', content: 'Bienvenido, ¿cuál es la causa principal de tu consulta?' }]);
       }
       setHasAppointment(false);
       return next;
@@ -102,16 +102,14 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
     if (mode === 'urgencias') {
     setMessages([{
       role: 'assistant',
-      content: `Bienvenido al Consultorio de Prent AI! 👋
+      content: `Hola, soy tu asistente de Prent. Estoy para ayudarte.
 
-      ¿Cual es la causa de tu consulta?`
+      ¿Cuál es la causa de tu consulta?`
     }]);
   } else {
     setMessages([{
       role: 'assistant',
-      content: `Bienvenido al Consultorio de Prent AI! 👋
-
-      ¿Como puedo ayudarte a agendar tu turno?`
+      content: `Hola, soy tu asistente de Prent. ¿Cómo te puedo ayudar a agendar tu turno hoy?`
     }]);
   }
   }, []);
@@ -156,7 +154,7 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
     const aiMessage: string = data.message || 'Perdón, no pude generar una respuesta.';
     const aiSuggestions: string[] = Array.isArray(data.suggestions) ? data.suggestions : [];
     setSuggestions(aiSuggestions);
-    return { message: aiMessage, suggestions: aiSuggestions };
+    return { message: aiMessage, suggestions: aiSuggestions, shouldSummarize: data.shouldSummarize };
   }
 
   const getAppointmentResponse = async (allMessages: Message[]): Promise<ResponseFormat> => {
@@ -225,6 +223,7 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
             ...(data.triage.reason ? { reason: String(data.triage.reason) } : {}),
           }
         : null;
+        console.log('triage', triage);
       // Save the summary into the scheduled turno info (consultorio only)
       if (mode === 'consultorio' && scheduledTurnoId) {
         try {
@@ -247,6 +246,8 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
   const handleSendMessage = async (content: string) => {
     lockConfig();
 
+    let shouldSummarize = false;
+
     // Add user message
     const userMessage: Message = {
       role: 'user',
@@ -265,11 +266,14 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
     }
     // 10 second wait for the next message
     timerRef.current = setTimeout(async () => {
-      const { message: aiResponse, reserved, shouldSummarize } = await generateAIResponse(messagesBuffer.current);
+      const { message: aiResponse, reserved, shouldSummarize: aiShouldSummarize } = await generateAIResponse(messagesBuffer.current);
+      shouldSummarize = aiShouldSummarize ?? false;
       if( typeof aiResponse !== 'string' ) {
         throw new Error('AI response: ' + JSON.stringify(aiResponse) + ' is not a string');
       }
       messagesBuffer.current = [];
+      console.log('aiResponse', aiResponse);
+      console.log('shouldSummarize from timer', shouldSummarize);
 
       setMessages(prev => [...prev, { role: 'assistant', content: aiResponse }]);
 
@@ -281,7 +285,7 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
         // Agregar la primera pregunta clínica sin borrar historial
         setMessages(prev => ([
           ...prev,
-          { role: 'assistant', content: '¿Cual es la causa de tu consulta?' }
+          { role: 'assistant', content: '¿Cuál es la causa principal de tu consulta?' }
         ]));
         setSuggestions([]);
       }
