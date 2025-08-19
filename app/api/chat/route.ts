@@ -146,18 +146,17 @@ const getSummary = async (messages: ConversationMessage[], summary: string, summ
 }
 
 const needSummary = (messages: ConversationMessage[]) => {
-  const userTurnCount = messages.filter((m: ConversationMessage) => m.role === 'user').length;
+  const amountOfMessages = messages.length;
 
-  // Renew summary every 5 user messages (≈ 10 total turnos)
-  return (userTurnCount >= 5 && userTurnCount % 5 === 0);
+  // Renew summary every 10 messages
+  return (amountOfMessages >= 10 && amountOfMessages % 10 === 0);
 }
 
 const getNextQuestion = async (
   messages: ConversationMessage[],
   summary: string,
   selectedPrompt: string,
-  last5Assistant: ConversationMessage[],
-  last5User: ConversationMessage[],
+  last10Messages: ConversationMessage[],
 ): Promise<{ message: string; suggestions: string[] }> => {
   const response = await generateText({
     model: openai('gpt-5'),
@@ -168,7 +167,7 @@ const getNextQuestion = async (
       }),
     }),
     system: `Resumen actual:${'\n'}${summary || 'Sin resumen disponible'}${'\n\n'}${selectedPrompt}`,
-    messages: [...last5Assistant, ...last5User],
+    messages: last10Messages,
     tools: {
       terminar_consulta: tool({
         description: 'Termina la consulta',
@@ -221,14 +220,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Context for next question: summary + last 5 from each role
-    const last5User = messages.filter((m: ConversationMessage) => m.role === 'user').slice(-5);
-    const last5Assistant = messages.filter((m: ConversationMessage) => m.role === 'assistant').slice(-5);
+    const last10Messages = messages.slice(-10);
 
     const selectedPrompt = (mode === 'consultorio')
       ? nextQuestionSystemPromptConsultorio
       : nextQuestionSystemPromptUrgencias;
 
-    const aiMessage = await getNextQuestion(messages, summary, selectedPrompt, last5Assistant, last5User);
+    const aiMessage = await getNextQuestion(messages, summary, selectedPrompt, last10Messages);
     const message = aiMessage.message || '¿Podrías contarme un poco más?';
     const suggestions = formatSuggestions(aiMessage.suggestions || []);
 
