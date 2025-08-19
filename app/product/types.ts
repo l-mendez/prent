@@ -62,3 +62,5 @@ export type AsignacionRow = {
 } | null;
 
 
+export type NextQuestionPayload = { message?: string; suggestions?: string[] };
+export type GenerateTextResult<T> = { text: string; object?: T | null };

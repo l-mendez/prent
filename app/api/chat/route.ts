@@ -1,8 +1,8 @@
 import { openai } from '@ai-sdk/openai';
-import {generateObject, Output, tool} from 'ai';
+import {generateText, Output, tool} from 'ai';
 import z from 'zod';
 import { NextRequest, NextResponse } from 'next/server';
-import type { ConversationMessage, OutputFormat } from '@/app/product/types';
+import type { ConversationMessage, OutputFormat, NextQuestionPayload, GenerateTextResult } from '@/app/product/types';
 
 let shouldSummarize :boolean = false;
 
@@ -152,29 +152,46 @@ const needSummary = (messages: ConversationMessage[]) => {
   return (userTurnCount >= 5 && userTurnCount % 5 === 0);
 }
 
-const getNextQuestion = async (messages: ConversationMessage[], summary: string, selectedPrompt: string, last5Assistant: ConversationMessage[], last5User: ConversationMessage[]) => {
+const getNextQuestion = async (
+  messages: ConversationMessage[],
+  summary: string,
+  selectedPrompt: string,
+  last5Assistant: ConversationMessage[],
+  last5User: ConversationMessage[],
+): Promise<{ message: string; suggestions: string[] }> => {
   const response = await generateText({
-  model: openai('gpt-5'),
-  experimental_output: Output.object({
-    schema: z.object({
-      message: z.string(),
-      suggestions: z.array(z.string()).max(5),
-    }),
-  }),
-  system: `Resumen actual:${'\n'}${summary || 'Sin resumen disponible'}${'\n\n'}${selectedPrompt}`,
-  messages: [...last5Assistant, ...last5User],
-  tools: {
-    terminar_consulta: tool({
-      description: 'Termina la consulta',
-      inputSchema: z.object({
+    model: openai('gpt-5'),
+    experimental_output: Output.object({
+      schema: z.object({
+        message: z.string(),
+        suggestions: z.array(z.string()).max(5),
       }),
-      execute: async () => {
-        shouldSummarize = true;
-        return { message: 'Consulta terminada' };
-      },
     }),
+    system: `Resumen actual:${'\n'}${summary || 'Sin resumen disponible'}${'\n\n'}${selectedPrompt}`,
+    messages: [...last5Assistant, ...last5User],
+    tools: {
+      terminar_consulta: tool({
+        description: 'Termina la consulta',
+        inputSchema: z.object({}),
+        execute: async () => {
+          shouldSummarize = true;
+          return { message: 'Consulta terminada' };
+        },
+      }),
+    },
   });
-  return response.object;
+  // Prefer structured object when available; otherwise parse the text
+
+  const { text, object } = response as GenerateTextResult<NextQuestionPayload>;
+  if (object && typeof object.message === 'string') {
+    return { message: object.message, suggestions: object.suggestions ?? [] };
+  }
+  try {
+    const parsed = JSON.parse(text);
+    return { message: String(parsed.message ?? ''), suggestions: Array.isArray(parsed.suggestions) ? parsed.suggestions : [] };
+  } catch {
+    return { message: String(text ?? ''), suggestions: [] };
+  }
 }
 
 const formatSuggestions = (suggestions: string[]) => {
@@ -212,8 +229,10 @@ export async function POST(request: NextRequest) {
       : nextQuestionSystemPromptUrgencias;
 
     const aiMessage = await getNextQuestion(messages, summary, selectedPrompt, last5Assistant, last5User);
+    const message = aiMessage.message || '¿Podrías contarme un poco más?';
+    const suggestions = formatSuggestions(aiMessage.suggestions || []);
 
-    return NextResponse.json({ message: aiMessage.message || '¿Podrías contarme un poco más?', summary, suggestions: aiMessage.suggestions, shouldSummarize });
+    return NextResponse.json({ message, summary, suggestions, shouldSummarize });
   } catch (error) {
     console.error('Error calling OpenAI API:', error);
     return NextResponse.json(
