@@ -49,7 +49,7 @@ export default function Sidebar({ onClose }: SidebarProps = {}) {
           <svg className="w-4 h-4 sm:w-5 sm:h-5 transition-all duration-300 ease-in-out group-hover:scale-105" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          <span>New Consultation</span>
+          <span>Nueva consulta</span>
         </button>
       </div>
 
@@ -72,7 +72,7 @@ export default function Sidebar({ onClose }: SidebarProps = {}) {
       <div className="p-3 sm:p-4 border-t border-black/10 dark:border-white/10">
         <div className="text-xs text-black/70 dark:text-white/70 text-center">
           <p className="font-medium">Prent AI v1.0</p>
-          <p className="mt-1 text-black/50 dark:text-white/50">For medical professionals only</p>
+          <p className="mt-1 text-black/50 dark:text-white/50">Sólo para profesionales médicos</p>
         </div>
       </div>
     </div>

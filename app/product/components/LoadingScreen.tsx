@@ -10,7 +10,7 @@ export default function LoadingScreen() {
           </svg>
         </div>
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Prent AI</h1>
-        <p className="text-gray-600">Loading medical assistant...</p>
+        <p className="text-gray-600">Cargando asistente médico...</p>
         <div className="mt-4 flex justify-center">
           <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
         </div>

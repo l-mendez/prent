@@ -2,8 +2,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Prent AI – Product",
-  description: "AI-powered medical assistant and hospital operations tools",
+  title: "Prent AI – Producto",
+  description: "Asistente médico con IA y herramientas para operaciones hospitalarias",
 };
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {

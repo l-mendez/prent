@@ -306,7 +306,7 @@ export default function RecordPage() {
       });
       const data = await res.json();
       if (data?.transcription) setTranscript(data.transcription);
-      if (data?.error) setError(data.error);
+      if (data?.error) setError('No se pudo transcribir el audio');
 
       // After transcription, generate summary from transcript
       if (data?.transcription) {
@@ -326,7 +326,7 @@ export default function RecordPage() {
           });
           const sumData = await sumRes.json();
           if (sumData?.summary) setSummaryText(sumData.summary);
-          if (sumData?.error) setError(sumData.error);
+          if (sumData?.error) setError('No se pudo generar el resumen');
         } catch {
           setError('No se pudo generar el resumen');
         } finally {

@@ -9,13 +9,13 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 export const metadata: Metadata = {
   metadataBase: new URL("https://prent.ai"),
   title: "Prent AI",
-  description: "AI orchestration for hospital operations",
+  description: "Orquestación de IA para operaciones hospitalarias",
   icons: [{ rel: "icon", url: "/favicon.svg" }],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="es" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}>
         {children}
       </body>

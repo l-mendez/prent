@@ -6,25 +6,25 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 
 export const metadata: Metadata = {
   title: {
-    default: "Prent AI — AI orchestration for hospital operations",
+    default: "Prent AI — Orquestación de IA para operaciones hospitalarias",
     template: "%s | Prent AI",
   },
   description:
-    "Prent AI streamlines hospital operations with intelligent orchestration across capacity, care coordination, and revenue integrity.",
+    "Prent AI optimiza las operaciones hospitalarias con orquestación inteligente en capacidad, coordinación de la atención e integridad de ingresos.",
   openGraph: {
     type: "website",
     url: "https://prent.ai",
-    title: "Prent AI — AI orchestration for hospital operations",
+    title: "Prent AI — Orquestación de IA para operaciones hospitalarias",
     description:
-      "Streamline hospital operations with AI. Reduce delays, improve throughput, and surface revenue opportunities.",
+      "Optimiza las operaciones hospitalarias con IA. Reduce demoras, mejora el flujo y detecta oportunidades de ingresos.",
     siteName: "Prent AI",
     images: [{ url: "/og.png", width: 1200, height: 630, alt: "Prent AI" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Prent AI — AI orchestration for hospital operations",
+    title: "Prent AI — Orquestación de IA para operaciones hospitalarias",
     description:
-      "Streamline hospital operations with AI. Reduce delays, improve throughput, and surface revenue opportunities.",
+      "Optimiza las operaciones hospitalarias con IA. Reduce demoras, mejora el flujo y detecta oportunidades de ingresos.",
     images: ["/og.png"],
   },
 };

@@ -30,9 +30,9 @@ export default function Header({ onToggleSidebar, isSidebarOpen }: HeaderProps =
   }, [mobileNavOpen]);
 
   const navigationItems = [
-    { href: "/product", label: "Dashboard", icon: "dashboard" },
+    { href: "/product", label: "Inicio", icon: "dashboard" },
     { href: "/product/misturnos", label: "Mis Turnos", icon: "calendar" },
-    { href: "/product/record", label: "Record", icon: "microphone" },
+    { href: "/product/record", label: "Registro", icon: "microphone" },
     { href: "/product/simulacion", label: "Simulación", icon: "play" }
   ];
 

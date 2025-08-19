@@ -137,11 +137,11 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
       }),
     });
     if (!response.ok) {
-      throw new Error('Failed to get AI response');
+      throw new Error('No se pudo obtener la respuesta de IA');
     }
     const data = await response.json();
     setSummary(data.summary);
-    const aiMessage: string = data.message || 'Sorry, I could not generate a response.';
+    const aiMessage: string = data.message || 'Perdón, no pude generar una respuesta.';
     const aiSuggestions: string[] = Array.isArray(data.suggestions) ? data.suggestions : [];
     setSuggestions(aiSuggestions);
     return { message: aiMessage, suggestions: aiSuggestions };
@@ -158,7 +158,7 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
       }),
     });
     if (!response.ok) {
-      throw new Error('Failed to get AI response');
+      throw new Error('No se pudo obtener la respuesta de IA');
     }
     const data = await response.json();
     return { message: data.message, suggestions: [], reserved: data.reserved, turnoId: data.turnoId };
@@ -187,7 +187,7 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
     return response
   } catch (error) {
     console.error('Error generating AI response:', error);
-    return { message: 'Sorry, there was an error processing your request. Please try again.', suggestions: [] };
+    return { message: 'Perdón, hubo un error procesando tu solicitud. Inténtalo nuevamente.', suggestions: [] };
   }
   };
 
@@ -203,7 +203,7 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate summary');
+        throw new Error('No se pudo generar el resumen');
       }
 
       const data = await response.json();
@@ -303,8 +303,8 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
       <div className="flex-shrink-0 bg-white/60 dark:bg-white/5 backdrop-blur border-b border-black/10 dark:border-white/10 px-4 sm:px-6 py-3 sm:py-4">
         <div className="flex items-center justify-between">
           <div className="min-w-0 flex-1">
-            <h2 className="text-base sm:text-lg font-semibold transition-all duration-300 ease-in-out truncate">Medical Consultation</h2>
-            <p className="text-xs sm:text-sm text-black/70 dark:text-white/70 truncate">AI Assistant for Healthcare Professionals</p>
+            <h2 className="text-base sm:text-lg font-semibold transition-all duration-300 ease-in-out truncate">Consulta Médica</h2>
+            <p className="text-xs sm:text-sm text-black/70 dark:text-white/70 truncate">Asistente de IA para profesionales de la salud</p>
           </div>
           <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-3">
             <details ref={configDetailsRef} className="relative mr-1 sm:mr-2 group">
@@ -446,24 +446,9 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
                 </div>
               </div>
             </details>
-                <button
-              onClick={async () => {
-                setIsLoading(true);
-                const { summary: summaryText, triage } = await generateSummary(messages);
-                // Remove if any identical assistant message exists
-                setMessages(prev => prev.filter(m => !(m.role === 'assistant' && m.content === summaryText)));
-                setSummaryDraft(summaryText);
-                setTriageDraft(triage ?? null);
-                setIsLoading(false);
-              }}
-              disabled={isLoading || chatLocked}
-              className="group px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm bg-brand text-white rounded-lg shadow-lg transition-all duration-300 ease-in-out hover:brightness-110 hover:shadow-xl hover:shadow-brand/30 hover:scale-105 disabled:bg-black/20 dark:disabled:bg-white/20 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none active:scale-95"
-            >
-              Generar Resumen
-            </button>
             <div className="flex items-center space-x-1 sm:space-x-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-lg shadow-green-500/50"></div>
-              <span className="text-xs sm:text-sm text-black/70 dark:text-white/70 hidden sm:inline">AI Online</span>
+              <span className="text-xs sm:text-sm text-black/70 dark:text-white/70 hidden sm:inline">IA en línea</span>
             </div>
           </div>
           </div>
