@@ -3,6 +3,11 @@ import { z } from 'zod';
 import { generateText, tool } from 'ai';
 import { NextRequest, NextResponse } from 'next/server';
 
+const getDateAndTime = () => {
+  const date = new Date();
+  return date.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+}
+
 const nextQuestionPrompt = `
 <descripcion_del_agente>
 Eres un secretario de un profesional de la salud que organiza turnos (citas). Tu objetivo es reservar un turno cumpliendo las preferencias del paciente, llamando a la API cuando tengas datos suficientes para intentar reservar.
@@ -31,6 +36,7 @@ Eres un secretario de un profesional de la salud que organiza turnos (citas). Tu
 </estilo_de_comunicación>
 
 <contexto_y_reglas_de_negocio>
+- Hoy es ${getDateAndTime()}
 - Un turno tiene: date (YYYY-MM-DD) y time (HH:MM).
 - Días válidos: solo días de semana (lunes a viernes).
 - Minutos válidos: 00, 15, 30 o 45.
