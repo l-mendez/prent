@@ -1,8 +1,10 @@
 import { openai } from '@ai-sdk/openai';
-import {generateObject} from 'ai';
+import {generateObject, Output, tool} from 'ai';
 import z from 'zod';
 import { NextRequest, NextResponse } from 'next/server';
 import type { ConversationMessage, OutputFormat } from '@/app/product/types';
+
+let shouldSummarize :boolean = false;
 
 const nextQuestionSystemPromptUrgencias = `
 <descripcion_del_agente>
@@ -151,14 +153,26 @@ const needSummary = (messages: ConversationMessage[]) => {
 }
 
 const getNextQuestion = async (messages: ConversationMessage[], summary: string, selectedPrompt: string, last5Assistant: ConversationMessage[], last5User: ConversationMessage[]) => {
-  const response = await generateObject({
+  const response = await generateText({
   model: openai('gpt-5'),
-  schema: z.object({
+  experimental_output: Output.object({
+    schema: z.object({
       message: z.string(),
       suggestions: z.array(z.string()).max(5),
+    }),
   }),
   system: `Resumen actual:${'\n'}${summary || 'Sin resumen disponible'}${'\n\n'}${selectedPrompt}`,
   messages: [...last5Assistant, ...last5User],
+  tools: {
+    terminar_consulta: tool({
+      description: 'Termina la consulta',
+      inputSchema: z.object({
+      }),
+      execute: async () => {
+        shouldSummarize = true;
+        return { message: 'Consulta terminada' };
+      },
+    }),
   });
   return response.object;
 }
@@ -199,7 +213,7 @@ export async function POST(request: NextRequest) {
 
     const aiMessage = await getNextQuestion(messages, summary, selectedPrompt, last5Assistant, last5User);
 
-    return NextResponse.json({ message: aiMessage.message || '¿Podrías contarme un poco más?', summary, suggestions: aiMessage.suggestions });
+    return NextResponse.json({ message: aiMessage.message || '¿Podrías contarme un poco más?', summary, suggestions: aiMessage.suggestions, shouldSummarize });
   } catch (error) {
     console.error('Error calling OpenAI API:', error);
     return NextResponse.json(

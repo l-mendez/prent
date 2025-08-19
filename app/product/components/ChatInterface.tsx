@@ -14,18 +14,20 @@ type ResponseFormat = {
   suggestions: string[];
   reserved?: boolean;
   turnoId?: number;
+  shouldSummarize?: boolean;
 }
 
 export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [hasGeneratedSummary, setHasGeneratedSummary] = useState(false);
   const [configLocked, setConfigLocked] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [triageDraft, setTriageDraft] = useState<null | { level: 'Rojo' | 'Naranja' | 'Amarillo' | 'Verde' | 'Azul'; reason?: string }>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
   const defaultSummaryFormat = `MOTIVO DE CONSULTA:
+  
 
 ANTECEDENTES PERSONALES:
 - ENFERMEDADES PREVIAS/CRÓNICAS:
@@ -61,6 +63,7 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
   const [hasAppointment, setHasAppointment] = useState(false);
   const [clinicalContextStartIndex, setClinicalContextStartIndex] = useState<number>(0);
   const [scheduledTurnoId, setScheduledTurnoId] = useState<number | null>(null);
+  const messagesBuffer = useRef<Message[]>([]);
 
   const resetConfig = () => {
     setSummaryFormat(defaultSummaryFormat);
@@ -83,6 +86,15 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
     });
   };
 
+
+  const lockConfig = () => {
+    if (!configLocked) {
+      const alreadyHasUserMessage = messages.some((m) => m.role === 'user');
+      if (!alreadyHasUserMessage) {
+        setConfigLocked(true);
+      }
+    }
+  }
  
 // Initialize welcome message after component mounts to avoid hydration mismatch
   useEffect(() => {
@@ -148,6 +160,7 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
   }
 
   const getAppointmentResponse = async (allMessages: Message[]): Promise<ResponseFormat> => {
+    console.log('getAppointmentResponse', allMessages);
     const response = await fetch('/api/chat/turnos', {
       method: 'POST',
       headers: {
@@ -164,20 +177,18 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
     return { message: data.message, suggestions: [], reserved: data.reserved, turnoId: data.turnoId };
   }
   
-  const generateAIResponse = async (userMessage: string): Promise<ResponseFormat> => {
-    const lastMessage: Message = {
-      role: 'user' as const,
-      content: userMessage,
-    };
-    const baseMessages = (hasAppointment || mode === 'urgencias')
+  const generateAIResponse = async (messagesBuffer: Message[]): Promise<ResponseFormat> => {
+
+    let messagesToSend = (hasAppointment || mode === 'urgencias')
       ? messages.slice(clinicalContextStartIndex)
       : messages;
-    const allMessages = [...baseMessages, lastMessage];
+   
+    messagesToSend = [...messagesToSend, ...messagesBuffer];
     
     try {
       const response = (hasAppointment || mode === 'urgencias')
-        ? await getMedicalResponse(allMessages, summary, summaryFormat, keyInfo, mode)
-        : await getAppointmentResponse(allMessages);
+        ? await getMedicalResponse(messagesToSend, summary, summaryFormat, keyInfo, mode)
+        : await getAppointmentResponse(messagesToSend);
       if (response.reserved){
         if (response.turnoId == null) {
           throw new Error('TurnoId is null');
@@ -234,67 +245,56 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
   };
 
   const handleSendMessage = async (content: string) => {
+    lockConfig();
+
     // Add user message
     const userMessage: Message = {
       role: 'user',
       content,
     };
 
-    // Lock configuration after the very first user message
-    if (!configLocked) {
-      const alreadyHasUserMessage = messages.some((m) => m.role === 'user');
-      if (!alreadyHasUserMessage) {
-        setConfigLocked(true);
-      }
-    }
-
-    const messagesAfterUser = [...messages, userMessage];
-    setMessages(messagesAfterUser);
-    setIsLoading(true);
-    // Clear previous suggestions while waiting for the next assistant question
+    setMessages(prev => [...prev, userMessage]);
     setSuggestions([]);
 
-    const { message: aiRaw, reserved } = await generateAIResponse(content);
-    if( typeof aiRaw !== 'string' ) {
-      throw new Error('AI response: ' + JSON.stringify(aiRaw) + ' is not a string');
+    // Add user message to messages buffer
+    messagesBuffer.current.push(userMessage);
+
+    // Reset timer
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
     }
-    const endTokenRegex = /###RESUMEN###\s*$/;
-    const shouldSummarize = endTokenRegex.test(aiRaw);
-    const aiContent = aiRaw.replace(endTokenRegex, '').trim();
+    // 10 second wait for the next message
+    timerRef.current = setTimeout(async () => {
+      const { message: aiResponse, reserved, shouldSummarize } = await generateAIResponse(messagesBuffer.current);
+      if( typeof aiResponse !== 'string' ) {
+        throw new Error('AI response: ' + JSON.stringify(aiResponse) + ' is not a string');
+      }
+      messagesBuffer.current = [];
 
-    const aiResponse: Message = {
-      role: 'assistant',
-      content: aiContent,
-    };
+      setMessages(prev => [...prev, { role: 'assistant', content: aiResponse }]);
 
-    const messagesAfterAI = [...messagesAfterUser, aiResponse];
-    setMessages(messagesAfterAI);
+      // Si se reservó, pasar a interrogación médica sin cargar datos del turno en el historial
+      if (reserved && mode === 'consultorio') {
+        setHasAppointment(true);
+        // Marcar desde dónde comienza el contexto clínico (no incluir los mensajes previos de agenda)
+        setClinicalContextStartIndex(messages.length);
+        // Agregar la primera pregunta clínica sin borrar historial
+        setMessages(prev => ([
+          ...prev,
+          { role: 'assistant', content: '¿Cual es la causa de tu consulta?' }
+        ]));
+        setSuggestions([]);
+      }
 
-    // Si se reservó, pasar a interrogación médica sin cargar datos del turno en el historial
-    if (reserved && mode === 'consultorio') {
-      setHasAppointment(true);
-      // Marcar desde dónde comienza el contexto clínico (no incluir los mensajes previos de agenda)
-      setClinicalContextStartIndex(messagesAfterAI.length);
-      // Agregar la primera pregunta clínica sin borrar historial
-      setMessages(prev => ([
-        ...prev,
-        { role: 'assistant', content: '¿Cual es la causa de tu consulta?' }
-      ]));
-      setSuggestions([]);
-    }
-
-    if (shouldSummarize && !hasGeneratedSummary) {
-      const { summary: summaryText, triage } = await generateSummary(messagesAfterAI);
-      // Remove any existing assistant message equal to the summary text
-      setMessages(prev => prev.filter(m => !(m.role === 'assistant' && m.content === summaryText)));
-      setSummaryDraft(summaryText);
-      setTriageDraft(triage ?? null);
-      setHasGeneratedSummary(true);
-      // When closing, there should be no suggestions
-      setSuggestions([]);
-    }
-
-    setIsLoading(false);
+      if (shouldSummarize && !hasGeneratedSummary) {
+        const { summary: summaryText, triage } = await generateSummary(messages);
+        setSummaryDraft(summaryText);
+        setTriageDraft(triage ?? null);
+        setHasGeneratedSummary(true);
+        setSuggestions([]);
+      }
+    }, 10000);
+    
   };
 
   return (
@@ -565,31 +565,11 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
           .map((message, index) => (
             <ChatMessage key={index} message={message} />
           ))}
-        {isLoading && (
-          <div className="flex justify-start mb-4 sm:mb-6 px-2 sm:px-0">
-            <div className="flex max-w-[90%] sm:max-w-2xl lg:max-w-3xl">
-              <div className="flex-shrink-0 mr-2 sm:mr-3">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-brand rounded-full flex items-center justify-center shadow-lg shadow-brand/30">
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                  </svg>
-                </div>
-              </div>
-              <div className="bg-white/60 dark:bg-white/5 backdrop-blur border border-black/10 dark:border-white/10 rounded-2xl p-3 sm:p-4 shadow-lg">
-                <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-brand/60 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-brand/60 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                  <div className="w-2 h-2 bg-brand/60 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
         <div ref={messagesEndRef} />
       </div>
 
       {/* Chat Input */}
-      <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading || chatLocked} suggestions={chatLocked ? [] : suggestions} />
+      <ChatInput onSendMessage={handleSendMessage} suggestions={suggestions} />
     </div>
   );
 }
