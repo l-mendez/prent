@@ -34,6 +34,7 @@ const translations = {
     'value.medics.desc': 'By automating processes, medics can focus on what they do best.',
     'value.outcomes.title': 'Better patient outcomes',
     'value.outcomes.desc': 'Pacients spend less time in the hospital and get better care.',
+    'value.clickToExplore': 'Click to explore',
     
     // How it works
     'how.title': 'Deploy in weeks, not months.',
@@ -65,12 +66,13 @@ const translations = {
     'hero.how': 'Cómo funciona',
     
     // Value props
-    'value.consultation.title': 'Consultas más eficientes',
-    'value.consultation.desc': 'Usa IA para acelerar las consultas y reducir los tiempos de espera.',
-    'value.medics.title': 'Alivia la carga de los médicos',
-    'value.medics.desc': 'Al automatizar procesos, los médicos pueden enfocarse en lo que mejor saben hacer.',
-    'value.outcomes.title': 'Mejores resultados para pacientes',
-    'value.outcomes.desc': 'Los pacientes pasan menos tiempo en el hospital y reciben mejor atención.',
+    'value.consultation.title': 'Chat Pre Consulta/Urgencias',
+    'value.consultation.desc': 'Un chat para reservar turnos, realizar triajes, y extraer informacion de los pacientes para acelerar consultas.',
+    'value.medics.title': 'Asistente de voz de consultas medicas',
+    'value.medics.desc': 'Escucha la entrevista entre el medico y el paciente y genera la historia clinica.',
+    'value.outcomes.title': 'Visualización de calendario',
+    'value.outcomes.desc': 'Los turnos reservados por el agente a partir de la entrevista',
+    'value.clickToExplore': 'Haz clic para explorar',
     
     // How it works
     'how.title': 'Despliega en semanas, no meses.',

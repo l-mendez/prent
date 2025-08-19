@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
+import Header from '../components/Header';
 
 type Doctor = {
   id: number;
@@ -56,7 +57,14 @@ export default function SimulacionPage() {
   };
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="min-h-screen flex flex-col bg-white/60 dark:bg-white/5 backdrop-blur">
+      {/* Background effects similar to other product pages */}
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(40%_30%_at_50%_-10%,theme(colors.brand/20),transparent_60%),radial-gradient(30%_20%_at_80%_10%,theme(colors.cyan.400/20),transparent_60%)]" />
+      <div className="pointer-events-none absolute -top-10 sm:-top-20 -left-10 sm:-left-20 h-40 w-40 sm:h-72 sm:w-72 rounded-full bg-brand/20 blur-3xl animate-floaty-slow" />
+      <div className="pointer-events-none absolute top-20 sm:top-40 -right-8 sm:-right-16 h-48 w-48 sm:h-80 sm:w-80 rounded-full bg-cyan-400/20 blur-3xl animate-floaty-slow" />
+      
+      <Header />
+      <div className="flex-1 p-6 space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Simulación de guardia</h1>
         <div className="flex items-center gap-2">
@@ -109,6 +117,7 @@ export default function SimulacionPage() {
             </div>
           </div>
         ))}
+      </div>
       </div>
     </div>
   );
