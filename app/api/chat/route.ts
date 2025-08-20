@@ -184,6 +184,14 @@ const needSummary = (messages: ConversationMessage[]) => {
   messages: last10Messages,
   });
 
+
+
+    // const tokenUsage = response.usage;
+
+    // console.log('Full usage object:', tokenUsage);
+    // console.log('Available properties:', Object.keys(tokenUsage));
+
+
   const aiObject = response.object;
   if (aiObject && typeof aiObject.message === 'string') {
     const tokenRegex = /(##\s*RESUMEN\s*##|###\s*RESUMEN\s*###)/i;

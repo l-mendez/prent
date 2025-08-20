@@ -228,6 +228,19 @@ export async function POST(request: NextRequest) {
         },
     });
 
+// ===================== TOKEN USAGE ========================
+
+    const tokenUsage = response.usage;
+    const GPT5 = { inputTokenCost: 1.25e-6, cachedInputTokenCost: 0.125e-6, outputTokenCost: 10e-6 }; // USD per token
+
+    console.log('Full usage object:', tokenUsage);
+    console.log('Available properties:', Object.keys(tokenUsage));
+
+    const { inputTokens, outputTokens, totalTokens, reasoningTokens, cachedInputTokens } = tokenUsage;
+    const cost = (inputTokens ? inputTokens * GPT5.inputTokenCost : 0) + (outputTokens ? outputTokens * GPT5.outputTokenCost : 0) + (cachedInputTokens ? cachedInputTokens * GPT5.cachedInputTokenCost : 0); 
+
+    console.log('Total Cost:', cost);
+
     return NextResponse.json({
       message: response.text,
       reserved: reserved,
