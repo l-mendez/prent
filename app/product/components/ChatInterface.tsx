@@ -64,6 +64,8 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
   const [clinicalContextStartIndex, setClinicalContextStartIndex] = useState<number>(0);
   const [scheduledTurnoId, setScheduledTurnoId] = useState<number | null>(null);
   const messagesBuffer = useRef<Message[]>([]);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
 
   const resetConfig = () => {
     setSummaryFormat(defaultSummaryFormat);
@@ -132,7 +134,7 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
   }, [configLocked, chatLocked]);
 
 
-  const getMedicalResponse = async (allMessages: Message[], summary: string | null, summaryFormat: string, keyInfo: string, mode: string): Promise<ResponseFormat> => {
+  const getMedicalResponse = async (allMessages: Message[], summary: string | null, summaryFormat: string, keyInfo: string, mode: string, signal?: AbortSignal): Promise<ResponseFormat> => {
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: {
@@ -145,6 +147,7 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
         keyInfo,
         mode,
       }),
+      signal,
     });
     if (!response.ok) {
       throw new Error('No se pudo obtener la respuesta de IA');
@@ -157,7 +160,7 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
     return { message: aiMessage, suggestions: aiSuggestions, shouldSummarize: data.shouldSummarize };
   }
 
-  const getAppointmentResponse = async (allMessages: Message[]): Promise<ResponseFormat> => {
+  const getAppointmentResponse = async (allMessages: Message[], signal?: AbortSignal): Promise<ResponseFormat> => {
     console.log('getAppointmentResponse', allMessages);
     const response = await fetch('/api/chat/turnos', {
       method: 'POST',
@@ -167,6 +170,7 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
       body: JSON.stringify({
         messages: allMessages,
       }),
+      signal,
     });
     if (!response.ok) {
       throw new Error('No se pudo obtener la respuesta de IA');
@@ -175,26 +179,34 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
     return { message: data.message, suggestions: [], reserved: data.reserved, turnoId: data.turnoId };
   }
   
-  const generateAIResponse = async (messagesBuffer: Message[]): Promise<ResponseFormat> => {
+  const generateAIResponse = async (bufferSnapshot: Message[]): Promise<ResponseFormat | null> => {
 
     let messagesToSend = (hasAppointment || mode === 'urgencias')
       ? messages.slice(clinicalContextStartIndex)
       : messages;
    
-    messagesToSend = [...messagesToSend, ...messagesBuffer];
-    
+    const sentLength = bufferSnapshot.length;
+    messagesToSend = [...messagesToSend, ...bufferSnapshot];
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
     try {
       const response = (hasAppointment || mode === 'urgencias')
-        ? await getMedicalResponse(messagesToSend, summary, summaryFormat, keyInfo, mode)
-        : await getAppointmentResponse(messagesToSend);
+        ? await getMedicalResponse(messagesToSend, summary, summaryFormat, keyInfo, mode, signal)
+        : await getAppointmentResponse(messagesToSend, signal);
       if (response.reserved){
         if (response.turnoId == null) {
           throw new Error('TurnoId is null');
         }
         setScheduledTurnoId(response.turnoId); // Save the turnoId for the summary
       }
-    return response
+      // Remove only the messages that were actually sent, preserve any new ones that arrived after
+      messagesBuffer.current.splice(0, sentLength);
+      return response
   } catch (error) {
+    if ((error as any)?.name === 'AbortError' || signal.aborted) {
+      console.log('Request aborted');
+      return null;
+    }
     console.error('Error generating AI response:', error);
     return { message: 'Perdón, hubo un error procesando tu solicitud. Inténtalo nuevamente.', suggestions: [] };
   }
@@ -248,6 +260,12 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
 
     let shouldSummarize = false;
 
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+
+
     // Add user message
     const userMessage: Message = {
       role: 'user',
@@ -266,12 +284,15 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
     }
     // 10 second wait for the next message
     timerRef.current = setTimeout(async () => {
-      const { message: aiResponse, reserved, shouldSummarize: aiShouldSummarize } = await generateAIResponse(messagesBuffer.current);
+      const result = await generateAIResponse(messagesBuffer.current.slice());
+      if (!result) {
+        return;
+      }
+      const { message: aiResponse, reserved, shouldSummarize: aiShouldSummarize } = result;
       shouldSummarize = aiShouldSummarize ?? false;
-      if( typeof aiResponse !== 'string' ) {
+      if (typeof aiResponse !== 'string') {
         throw new Error('AI response: ' + JSON.stringify(aiResponse) + ' is not a string');
       }
-      messagesBuffer.current = [];
       console.log('aiResponse', aiResponse);
       console.log('shouldSummarize from timer', shouldSummarize);
 
