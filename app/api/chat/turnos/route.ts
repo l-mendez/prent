@@ -231,20 +231,38 @@ export async function POST(request: NextRequest) {
 // ===================== TOKEN USAGE ========================
 
     const tokenUsage = response.usage;
-    const GPT5 = { inputTokenCost: 1.25e-6, cachedInputTokenCost: 0.125e-6, outputTokenCost: 10e-6 }; // USD per token
-
-    console.log('Full usage object:', tokenUsage);
-    console.log('Available properties:', Object.keys(tokenUsage));
-
-    const { inputTokens, outputTokens, totalTokens, reasoningTokens, cachedInputTokens } = tokenUsage;
-    const cost = (inputTokens ? inputTokens * GPT5.inputTokenCost : 0) + (outputTokens ? outputTokens * GPT5.outputTokenCost : 0) + (cachedInputTokens ? cachedInputTokens * GPT5.cachedInputTokenCost : 0); 
-
-    console.log('Total Cost:', cost);
+    
+    // Call price API to calculate cost
+    let cost = 0;
+    let priceBreakdown = null;
+    
+    try {
+      const priceUrl = new URL('/api/price', origin);
+      const priceResponse = await fetch(priceUrl.toString(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tokenUsage })
+      });
+      
+      if (priceResponse.ok) {
+        const priceData = await priceResponse.json();
+        cost = priceData.cost;
+        priceBreakdown = priceData.breakdown;
+        console.log('Price calculated via API:', cost);
+        console.log('Price breakdown:', priceBreakdown);
+      } else {
+        console.error('Failed to calculate price via API');
+      }
+    } catch (error) {
+      console.error('Error calling price API:', error);
+    }
 
     return NextResponse.json({
       message: response.text,
       reserved: reserved,
       turnoId: turnoId,
+      cost: cost,
+      priceBreakdown: priceBreakdown,
     });
 
   } catch (error) {
