@@ -203,7 +203,7 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
       messagesBuffer.current.splice(0, sentLength);
       return response
   } catch (error) {
-    if ((error as any)?.name === 'AbortError' || signal.aborted) {
+    if ((error as Error).name === 'AbortError' || signal.aborted) {
       console.log('Request aborted');
       return null;
     }
