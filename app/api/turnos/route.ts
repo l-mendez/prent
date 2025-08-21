@@ -323,5 +323,3 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Error inesperado' }, { status: 500 });
   }
 }
-
-

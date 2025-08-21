@@ -87,8 +87,8 @@ export async function createChat(apiKey: string, usage: ChatUsage){
             output_tokens: normalized.output_tokens || 0,
             total_tokens: (normalized.input_tokens || 0) + (normalized.output_tokens || 0) + (normalized.cache_tokens || 0),
             chat_cost: initialCost,
-            messages_amount: 0,
-            created_at: new Date(),
+            messages_amount: 2,
+            created_at: new Date('UTC-3'),
         })
         .select('id')
         .single();
@@ -148,7 +148,7 @@ export async function updateChat(apiKey: string, id: number, tokenUsage: ChatUsa
           total_tokens: (current?.total_tokens || 0) + totalTokensInc,
           chat_cost: (current?.chat_cost || 0) + costInc,
           messages_amount: (current?.messages_amount || 0) + messagesInc,
-          updated_at: new Date(),
+          updated_at: new Date('UTC-3'),
       }).eq('id', id);
 
       await updateApiKeyUsage(apiKey, costInc);

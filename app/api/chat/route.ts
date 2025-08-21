@@ -153,7 +153,6 @@ Avanzar hacia un cierre útil y seguro lo antes posible.
 `;
 
 const getSummary = async (messages: ConversationMessage[], summary: string, summaryFormat: string, mode: string, request: NextRequest) => {
-  // is request needed?
   const res = await fetch(new URL('/api/summary', request.url).toString(), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -207,6 +206,8 @@ const formatSuggestions = (suggestions: string[]) => {
   return suggestions;
 }
 
+// Removed module-scoped chatId to avoid leaking across requests/users
+
 // keyInfo is not used anymore but keep it for the future
 export async function POST(request: NextRequest) {
 
@@ -217,8 +218,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const { messages, summary: incomingSummary, summaryFormat, keyInfo, mode, id } = await request.json();
-    let chatId;
-    chatId = chatId? chatId : id;
+    
+    let chatId: number | null = (id ?? null);
     
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json(
@@ -245,13 +246,15 @@ export async function POST(request: NextRequest) {
     const {aiObject, usage} = await getNextQuestion(messages, summary, selectedPrompt, last10Messages);
     if (chatId){
       await updateChat(apiKey, chatId, usage as unknown as ChatUsage);
-    }
-    else{
-      chatId = await createChat(apiKey, usage as unknown as ChatUsage);
+    } else {
+      const result = await createChat(apiKey, usage as unknown as ChatUsage);
+      if (result && 'id' in result) {
+        chatId = result.id as number;
+      }
     }
     const message = aiObject.message || 'Gracias por contarme. ¿Podés contarme un poco más?';
     const suggestions = formatSuggestions(aiObject.suggestions || []);
-    return NextResponse.json({ message, summary, suggestions, shouldSummarize});
+    return NextResponse.json({ message, summary, suggestions, shouldSummarize, id: chatId});
   } catch (error) {
     console.error('Error calling OpenAI API:', error);
     return NextResponse.json(

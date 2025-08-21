@@ -13,9 +13,12 @@ type ResponseFormat = {
   message: string;
   suggestions: string[];
   reserved?: boolean;
+  id?: number;
   turnoId?: number;
   shouldSummarize?: boolean;
 }
+
+let chatId: number | undefined = undefined;
 
 export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -134,7 +137,9 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
   }, [configLocked, chatLocked]);
 
 
-  const getMedicalResponse = async (allMessages: Message[], summary: string | null, summaryFormat: string, keyInfo: string, mode: string, signal?: AbortSignal): Promise<ResponseFormat> => {
+  const getMedicalResponse = async (allMessages: Message[], summary: string | null, summaryFormat: string, keyInfo: string, mode: string, chatId: number | undefined, signal?: AbortSignal): Promise<ResponseFormat> => {
+    console.log('Getting medical response');
+    console.log('chatId', chatId);
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: {
@@ -146,6 +151,7 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
         summaryFormat,
         keyInfo,
         mode,
+        id: chatId,
       }),
       signal,
     });
@@ -157,10 +163,10 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
     const aiMessage: string = data.message || 'Perdón, no pude generar una respuesta.';
     const aiSuggestions: string[] = Array.isArray(data.suggestions) ? data.suggestions : [];
     setSuggestions(aiSuggestions);
-    return { message: aiMessage, suggestions: aiSuggestions, shouldSummarize: data.shouldSummarize };
+    return { message: aiMessage, suggestions: aiSuggestions, shouldSummarize: data.shouldSummarize, id: data.id };
   }
 
-  const getAppointmentResponse = async (allMessages: Message[], signal?: AbortSignal): Promise<ResponseFormat> => {
+  const getAppointmentResponse = async (allMessages: Message[], chatId: number | undefined, signal?: AbortSignal): Promise<ResponseFormat> => {
     const response = await fetch('/api/chat/turnos', {
       method: 'POST',
       headers: {
@@ -168,6 +174,7 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
       },
       body: JSON.stringify({
         messages: allMessages,
+        id: chatId,
       }),
       signal,
     });
@@ -176,7 +183,7 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
       throw new Error(error.error || 'No se pudo obtener la respuesta de IA');
     }
     const data = await response.json();
-    return { message: data.message, suggestions: [], reserved: data.reserved, turnoId: data.turnoId };
+    return { message: data.message, suggestions: [], reserved: data.reserved, turnoId: data.turnoId, id: data.id };
   }
   
   const generateAIResponse = async (bufferSnapshot: Message[]): Promise<ResponseFormat | null> => {
@@ -191,14 +198,15 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
     const signal = abortControllerRef.current.signal;
     try {
       const response = (hasAppointment || mode === 'urgencias')
-        ? await getMedicalResponse(messagesToSend, summary, summaryFormat, keyInfo, mode, signal)
-        : await getAppointmentResponse(messagesToSend, signal);
+        ? await getMedicalResponse(messagesToSend, summary, summaryFormat, keyInfo, mode, chatId, signal)
+        : await getAppointmentResponse(messagesToSend, chatId, signal);
       if (response.reserved){
         if (response.turnoId == null) {
           throw new Error('TurnoId is null');
         }
         setScheduledTurnoId(response.turnoId); // Save the turnoId for the summary
       }
+      chatId = chatId ?? response.id;
       // Remove only the messages that were actually sent, preserve any new ones that arrived after
       messagesBuffer.current.splice(0, sentLength);
       return response
@@ -286,7 +294,9 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
       if (!result) {
         return;
       }
-      const { message: aiResponse, reserved, shouldSummarize: aiShouldSummarize } = result;
+      const { message: aiResponse, reserved, shouldSummarize: aiShouldSummarize, id: newChatId } = result;
+      chatId = newChatId;
+      
       shouldSummarize = aiShouldSummarize ?? false;
       if (typeof aiResponse !== 'string') {
         throw new Error('AI response: ' + JSON.stringify(aiResponse) + ' is not a string');

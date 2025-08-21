@@ -9,6 +9,7 @@ import LoadingScreen from '@/app/product/components/LoadingScreen';
 export default function Home() {
   const [mounted, setMounted] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [chatInstanceId, setChatInstanceId] = useState(0);
 
   useEffect(() => {
     setMounted(true);
@@ -16,6 +17,10 @@ export default function Home() {
 
   const toggleMobileSidebar = () => {
     setIsMobileSidebarOpen(!isMobileSidebarOpen);
+  };
+
+  const handleNewChat = () => {
+    setChatInstanceId((prev) => prev + 1);
   };
 
   if (!mounted) {
@@ -36,7 +41,7 @@ export default function Home() {
       <div className="flex flex-1 overflow-hidden min-h-0 relative">
         {/* Desktop Sidebar */}
         <div className="hidden lg:block">
-          <Sidebar />
+          <Sidebar onNewChat={handleNewChat} />
         </div>
         
         {/* Mobile Sidebar Overlay */}
@@ -55,7 +60,7 @@ export default function Home() {
         )}
         
         <main className="flex-1 flex flex-col bg-white/60 dark:bg-white/5 backdrop-blur lg:border-l border-black/10 dark:border-white/10 min-w-0 overflow-hidden">
-          <ChatInterface />
+          <ChatInterface key={chatInstanceId} />
         </main>
       </div>
     </div>

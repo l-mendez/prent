@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react';
 
 interface SidebarProps {
   onClose?: () => void;
+  onNewChat?: () => void;
 }
 
-export default function Sidebar({ onClose }: SidebarProps = {}) {
+export default function Sidebar({ onClose, onNewChat }: SidebarProps = {}) {
   const [conversations, setConversations] = useState<Array<{
     id: number;
     title: string;
@@ -44,7 +45,10 @@ export default function Sidebar({ onClose }: SidebarProps = {}) {
       <div className="p-3 sm:p-4">
         <button 
           className="group w-full bg-brand text-white rounded-2xl py-3 px-4 font-medium shadow-lg transition-all duration-300 ease-in-out hover:brightness-110 hover:scale-105 hover:shadow-xl hover:shadow-brand/30 active:scale-95 flex items-center justify-center space-x-2 text-sm sm:text-base"
-          onClick={onClose} // Close mobile sidebar when new chat is started
+          onClick={() => {
+            onNewChat?.();
+            onClose?.();
+          }} // Start new chat and close mobile sidebar
         >
           <svg className="w-4 h-4 sm:w-5 sm:h-5 transition-all duration-300 ease-in-out group-hover:scale-105" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
