@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSupabaseServerClient } from '@/lib/supabase';
+import { getSupabaseServerClient } from '@/db/supabaseClient';
 import type { PacienteRow, AsignacionRow } from '../../../../product/types';
 
 export async function POST(request: Request) {

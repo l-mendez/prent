@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSupabaseServerClient } from '@/lib/supabase';
+import { getSupabaseServerClient } from '@/db/supabaseClient';
 import type { PatchBody } from '../../../product/types';
 
 export async function PATCH(request: Request) {

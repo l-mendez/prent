@@ -2,7 +2,8 @@ import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
 import { generateText, tool } from 'ai';
 import { NextRequest, NextResponse } from 'next/server';
-import { ConversationMessage } from '@/app/product/types';
+import { ChatUsage, ConversationMessage } from '@/app/product/types';
+import { createChat, updateChat } from '@/db/utils';
 
 const getDateAndTime = () => {
   const date = new Date();
@@ -139,12 +140,22 @@ Devuelve EXCLUSIVAMENTE un texto en español para el paciente, sin JSON ni metad
 
 </ejemplos>
 `;
-
+let id: number | null = null;
 export async function POST(request: NextRequest) {
+
+  const apiKey = process.env.PRENT_API_KEY;
+
+  if (!apiKey) {
+    return NextResponse.json({ error: 'API key is not valid' }, { status: 401 });
+  }
+
   try {
-    const { messages, id }: { messages: ConversationMessage[], id: number | null } = await request.json();
-    let turnoId: number | null = null;
+    const { messages, idChat }: { messages: ConversationMessage[], idChat: number | null } = await request.json();
+
     let reserved = false;
+    let turnoId: number | null = null;
+    id = id ? id : idChat;
+    
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json({ error: 'Messages array is required' }, { status: 400 });
     }
@@ -230,55 +241,22 @@ export async function POST(request: NextRequest) {
     });
     
     if (!id) {
-      const chat = await createChat(id);
-      if (chat) {
-        messages.push({ role: 'system', content: `El chat tiene ${chat.messages_amount} mensajes. El costo total es de ${chat.chat_cost} USD.` });
+      const result = await createChat(apiKey, response.usage as unknown as ChatUsage);
+      if (result && 'id' in result) {
+        id = result.id as number;
       }
-    } else {
-      const tokenUsage = response.usage;
-    
-      // Call price API to calculate cost
-      let cost = 0;
-      let priceBreakdown = null;
-      
+    } else {      
       try {
-        const priceUrl = new URL('/api/price', origin);
-        const priceResponse = await fetch(priceUrl.toString(), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tokenUsage })
-        });
-        
-        if (!priceResponse.ok) {
-          console.error('Failed to calculate price via API');
-        }
+        await updateChat(apiKey, id, response.usage as unknown as ChatUsage);
       } catch (error) {
         console.error('Error calling price API:', error);
-      } 
-
-      // Update chat with cost and token usage
-      // esto va en price/route.ts
-      // que no se llame api/price/route.ts, que se llame api/chat/update/route.ts
-      const chat = await updateChat(id, {
-        messages_amount: messages.length,
-        chat_cost: cost,
-        total_tokens: response.usage.totalTokens,
-        input_tokens: response.usage.inputTokens,
-        output_tokens: response.usage.outputTokens,
-      });
-    }
-
-
-
-    // ===================== TOKEN USAGE ========================
-    
+      }
+    }    
 
     return NextResponse.json({
       message: response.text,
       reserved: reserved,
-      turnoId: turnoId,
-      cost: cost,
-      priceBreakdown: priceBreakdown,
+      turnoId: turnoId
     });
 
   } catch (error) {

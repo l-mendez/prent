@@ -2,8 +2,9 @@ import { openai } from '@ai-sdk/openai';
 import {generateObject, generateText, Output, tool} from 'ai';
 import z from 'zod';
 import { NextRequest, NextResponse } from 'next/server';
-import type { ConversationMessage, OutputFormat, NextQuestionPayload, GenerateTextResult } from '@/app/product/types';
+import type { ConversationMessage, OutputFormat, NextQuestionPayload, GenerateTextResult, ChatUsage } from '@/app/product/types';
 import { NoObjectGeneratedError } from 'ai';
+import { createChat, updateChat } from '@/db/utils';
 
 let shouldSummarize :boolean = false;
 
@@ -173,6 +174,7 @@ const needSummary = (messages: ConversationMessage[]) => {
   return (amountOfMessages >= 10 && amountOfMessages % 10 === 0);
 }
 
+
   const getNextQuestion = async (messages: ConversationMessage[], summary: string, selectedPrompt: string, last10Messages: ConversationMessage[]) => {
     const response = await generateObject({
   model: openai('gpt-5'),
@@ -193,7 +195,7 @@ const needSummary = (messages: ConversationMessage[]) => {
     }
   }
 
-  return aiObject;
+  return {aiObject, usage: response.usage};
 }
 
 const formatSuggestions = (suggestions: string[]) => {
@@ -207,8 +209,17 @@ const formatSuggestions = (suggestions: string[]) => {
 
 // keyInfo is not used anymore but keep it for the future
 export async function POST(request: NextRequest) {
+
+  const apiKey = process.env.PRENT_API_KEY;
+  if (!apiKey) {
+    return NextResponse.json({ error: 'API key is not valid' }, { status: 401 });
+  }
+
   try {
-    const { messages, summary: incomingSummary, summaryFormat, keyInfo, mode } = await request.json();
+    const { messages, summary: incomingSummary, summaryFormat, keyInfo, mode, id } = await request.json();
+    let chatId;
+    chatId = chatId? chatId : id;
+    
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json(
         { error: 'Messages array is required' },
@@ -231,11 +242,16 @@ export async function POST(request: NextRequest) {
       : nextQuestionSystemPromptUrgencias;
 
 
-    const aiMessage = await getNextQuestion(messages, summary, selectedPrompt, last10Messages);
-    const message = aiMessage.message || 'Gracias por contarme. ¿Podés contarme un poco más?';
-    const suggestions = formatSuggestions(aiMessage.suggestions || []);
-    console.log('shouldSummarize from route', shouldSummarize);
-    return NextResponse.json({ message, summary, suggestions, shouldSummarize });
+    const {aiObject, usage} = await getNextQuestion(messages, summary, selectedPrompt, last10Messages);
+    if (chatId){
+      await updateChat(apiKey, chatId, usage as unknown as ChatUsage);
+    }
+    else{
+      chatId = await createChat(apiKey, usage as unknown as ChatUsage);
+    }
+    const message = aiObject.message || 'Gracias por contarme. ¿Podés contarme un poco más?';
+    const suggestions = formatSuggestions(aiObject.suggestions || []);
+    return NextResponse.json({ message, summary, suggestions, shouldSummarize});
   } catch (error) {
     console.error('Error calling OpenAI API:', error);
     return NextResponse.json(

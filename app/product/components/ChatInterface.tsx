@@ -161,7 +161,6 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
   }
 
   const getAppointmentResponse = async (allMessages: Message[], signal?: AbortSignal): Promise<ResponseFormat> => {
-    console.log('getAppointmentResponse', allMessages);
     const response = await fetch('/api/chat/turnos', {
       method: 'POST',
       headers: {
@@ -173,7 +172,8 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
       signal,
     });
     if (!response.ok) {
-      throw new Error('No se pudo obtener la respuesta de IA');
+      const error = await response.json();
+      throw new Error(error.error || 'No se pudo obtener la respuesta de IA');
     }
     const data = await response.json();
     return { message: data.message, suggestions: [], reserved: data.reserved, turnoId: data.turnoId };
@@ -204,7 +204,6 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
       return response
   } catch (error) {
     if ((error as Error).name === 'AbortError' || signal.aborted) {
-      console.log('Request aborted');
       return null;
     }
     console.error('Error generating AI response:', error);
@@ -235,7 +234,6 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
             ...(data.triage.reason ? { reason: String(data.triage.reason) } : {}),
           }
         : null;
-        console.log('triage', triage);
       // Save the summary into the scheduled turno info (consultorio only)
       if (mode === 'consultorio' && scheduledTurnoId) {
         try {
@@ -293,8 +291,6 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
       if (typeof aiResponse !== 'string') {
         throw new Error('AI response: ' + JSON.stringify(aiResponse) + ' is not a string');
       }
-      console.log('aiResponse', aiResponse);
-      console.log('shouldSummarize from timer', shouldSummarize);
 
       setMessages(prev => [...prev, { role: 'assistant', content: aiResponse }]);
 

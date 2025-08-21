@@ -17,9 +17,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Token usage data is required' }, { status: 400 });
     }
 
-    console.log('Full usage object:', tokenUsage);
-    console.log('Available properties:', Object.keys(tokenUsage));
-
     const { inputTokens, outputTokens, totalTokens, reasoningTokens, cachedInputTokens } = tokenUsage;
     
     // Calculate cost based on token usage
@@ -27,13 +24,7 @@ export async function POST(request: NextRequest) {
     const outputCost = (outputTokens ? outputTokens * GPT5.outputTokenCost : 0);
     const cachedInputCost = (cachedInputTokens ? cachedInputTokens * GPT5.cachedInputTokenCost : 0);
     const totalCost = inputCost + outputCost + cachedInputCost;
-
-    console.log('Input Cost:', inputCost);
-    console.log('Output Cost:', outputCost);
-    console.log('Cached Input Cost:', cachedInputCost);
-    console.log('Total Cost:', totalCost);
-
-
+    
     // devuelve un objeto con el costo total, un 
     // breakdown de los costos por tipo de token 
     // y el pricing mas raw de GPT5 bro

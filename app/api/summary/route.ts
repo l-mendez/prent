@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateObject, Output } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
-import type { ConversationMessage } from '@/app/product/types';
+import type { ChatUsage, ConversationMessage } from '@/app/product/types';
+import {apiKeyExists, calculateCost, updateApiKeyUsage } from '@/db/utils';
 
 const getLastTenMessages = (messages: ConversationMessage[]): ConversationMessage[] => {
   return Array.isArray(messages) ? messages.filter((m: ConversationMessage) => !!m && !!m.content && m.role !== 'system').slice(-10) : [];
@@ -59,6 +60,16 @@ Eres un asistente clínico que ACTUALIZA un resumen acumulativo en español.
 
 
 export async function POST(request: NextRequest) {
+
+  const apiKey = process.env.PRENT_API_KEY;
+
+  if (!apiKey) {
+    return NextResponse.json({ error: 'API key is not valid' }, { status: 401 });
+  }
+  if (!(await apiKeyExists(apiKey))) {
+    return NextResponse.json({ error: 'API key is not valid' }, { status: 401 });
+  }
+
   try {
     const { messages, summary, summaryFormat, triageEnabled, freeForm } = await request.json();
 
@@ -156,6 +167,8 @@ const customFormNoTriageSystemPrompt = `
       }),
       messages: modifiedMessages,
     });
+
+    await updateApiKeyUsage(apiKey, calculateCost(response.usage as unknown as ChatUsage));
 
     const { summary: summaryText, triage } = response.object;
 

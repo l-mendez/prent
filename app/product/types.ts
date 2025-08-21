@@ -94,3 +94,10 @@ export type UpdateChat = Partial<Omit<Chat, 'id' | 'paciente_id' | 'created_at' 
 
 export type NextQuestionPayload = { message?: string; suggestions?: string[] };
 export type GenerateTextResult<T> = { text: string; object?: T | null };
+
+
+export type ChatUsage = {
+  cache_tokens: number | null;
+  input_tokens: number | null;
+  output_tokens: number | null;
+};

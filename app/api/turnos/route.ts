@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseServerClient } from '@/lib/supabase';
+import { getSupabaseServerClient } from '@/db/supabaseClient';
 import type { Turno } from '../../product/types';
 
 function isValidDateString(dateStr: string): boolean {
