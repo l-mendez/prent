@@ -2,6 +2,7 @@ import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
 import { generateText, tool } from 'ai';
 import { NextRequest, NextResponse } from 'next/server';
+import { ConversationMessage } from '@/app/product/types';
 
 const getDateAndTime = () => {
   const date = new Date();
@@ -141,121 +142,136 @@ Devuelve EXCLUSIVAMENTE un texto en español para el paciente, sin JSON ni metad
 
 export async function POST(request: NextRequest) {
   try {
-    const { messages } = await request.json();
+    const { messages, id }: { messages: ConversationMessage[], id: number | null } = await request.json();
     let turnoId: number | null = null;
     let reserved = false;
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json({ error: 'Messages array is required' }, { status: 400 });
     }
-
+    
     // Build absolute origin for internal API calls
     const origin = new URL(request.url).origin;
-
+    
     const response = await generateText({
-        model: openai('gpt-5'),
-        temperature: 0.6,
-        presencePenalty: 0.2,
-        system: nextQuestionPrompt,
-        messages: messages,
-        maxRetries: 2,
-        stopWhen: (output) => {
-          return output.steps.length > 6;
-        },  
-        tools: {
-          obtener_turnos_disponibles: tool({
-            description: 'Obtiene los turnos disponibles en un rango de fechas y horas (inclusivo)',
-            inputSchema: z.object({
-              dateStart: z.string(),
-              dateEnd: z.string(),
-              timeStart: z.string(),
-              timeEnd: z.string(),
-            }),
-            execute: async ({ dateStart, dateEnd, timeStart, timeEnd }) => {
-              if (!dateStart || !dateEnd || !timeStart || !timeEnd) {
-                return { error: 'Se requieren dateStart, dateEnd, timeStart y timeEnd' };
-              }
-              try {
-                const url = new URL('/api/turnos', origin);
-                url.searchParams.set('startDate', dateStart);
-                url.searchParams.set('endDate', dateEnd);
-                url.searchParams.set('startTime', timeStart);
-                url.searchParams.set('endTime', timeEnd);
-                const res = await fetch(url.toString());
-                return await res.json();
-              } catch (e) {
-                return { error: 'No se pudieron obtener los turnos:' + e };
-              }
-            },
+      model: openai('gpt-5'),
+      temperature: 0.6,
+      presencePenalty: 0.2,
+      system: nextQuestionPrompt,
+      messages: messages,
+      maxRetries: 2,
+      stopWhen: (output) => {
+        return output.steps.length > 6;
+      },  
+      tools: {
+        obtener_turnos_disponibles: tool({
+          description: 'Obtiene los turnos disponibles en un rango de fechas y horas (inclusivo)',
+          inputSchema: z.object({
+            dateStart: z.string(),
+            dateEnd: z.string(),
+            timeStart: z.string(),
+            timeEnd: z.string(),
           }),
-          reservar_turno: tool({
-            description: 'Reserva un turno para un paciente, usar primero obtener_turnos_disponibles para verificar disponibilidad',
-            inputSchema: z.object({
-              paciente: z.string(),
-              date: z.string(),
-              time: z.string(),
-            }),
-            execute: async ({ paciente, date, time }) => {
-              if (!paciente || !date || !time) {
-                return { error: 'Se requieren paciente, date y time' };
-              }
-              try {
-                const url = new URL('/api/turnos', origin);
-                const res = await fetch(url.toString(), {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ paciente, date, time })
-                });
-                const data = await res.json();
-                if (res.ok && data && data.turno && typeof data.turno.id === 'number') {
-                  turnoId = data.turno.id;
-                }
-                return data;
-              } catch (e) {
-                return { error: 'No se pudo reservar el turno:' + e };
-              }
-            },
+          execute: async ({ dateStart, dateEnd, timeStart, timeEnd }) => {
+            if (!dateStart || !dateEnd || !timeStart || !timeEnd) {
+              return { error: 'Se requieren dateStart, dateEnd, timeStart y timeEnd' };
+            }
+            try {
+              const url = new URL('/api/turnos', origin);
+              url.searchParams.set('startDate', dateStart);
+              url.searchParams.set('endDate', dateEnd);
+              url.searchParams.set('startTime', timeStart);
+              url.searchParams.set('endTime', timeEnd);
+              const res = await fetch(url.toString());
+              return await res.json();
+            } catch (e) {
+              return { error: 'No se pudieron obtener los turnos:' + e };
+            }
+          },
+        }),
+        reservar_turno: tool({
+          description: 'Reserva un turno para un paciente, usar primero obtener_turnos_disponibles para verificar disponibilidad',
+          inputSchema: z.object({
+            paciente: z.string(),
+            date: z.string(),
+            time: z.string(),
           }),
-          terminar_reserva: tool({
-            description: 'Termina el chat de reserva de turno. Solo llamar una vez que se haya confirmado la reserva.',
-            inputSchema: z.object({}),
-            execute: async () => {
-              reserved = true;
-              return {
-                message: 'Se registró el turno. Gracias.',
+          execute: async ({ paciente, date, time }) => {
+            if (!paciente || !date || !time) {
+              return { error: 'Se requieren paciente, date y time' };
+            }
+            try {
+              const url = new URL('/api/turnos', origin);
+              const res = await fetch(url.toString(), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ paciente, date, time })
+              });
+              const data = await res.json();
+              if (res.ok && data && data.turno && typeof data.turno.id === 'number') {
+                turnoId = data.turno.id;
               }
-            },
-          }),
-        },
+              return data;
+            } catch (e) {
+              return { error: 'No se pudo reservar el turno:' + e };
+            }
+          },
+        }),
+        terminar_reserva: tool({
+          description: 'Termina el chat de reserva de turno. Solo llamar una vez que se haya confirmado la reserva.',
+          inputSchema: z.object({}),
+          execute: async () => {
+            reserved = true;
+            return {
+              message: 'Se registró el turno. Gracias.',
+            }
+          },
+        }),
+      },
     });
-
-// ===================== TOKEN USAGE ========================
-
-    const tokenUsage = response.usage;
     
-    // Call price API to calculate cost
-    let cost = 0;
-    let priceBreakdown = null;
-    
-    try {
-      const priceUrl = new URL('/api/price', origin);
-      const priceResponse = await fetch(priceUrl.toString(), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tokenUsage })
-      });
-      
-      if (priceResponse.ok) {
-        const priceData = await priceResponse.json();
-        cost = priceData.cost;
-        priceBreakdown = priceData.breakdown;
-        console.log('Price calculated via API:', cost);
-        console.log('Price breakdown:', priceBreakdown);
-      } else {
-        console.error('Failed to calculate price via API');
+    if (!id) {
+      const chat = await createChat(id);
+      if (chat) {
+        messages.push({ role: 'system', content: `El chat tiene ${chat.messages_amount} mensajes. El costo total es de ${chat.chat_cost} USD.` });
       }
-    } catch (error) {
-      console.error('Error calling price API:', error);
+    } else {
+      const tokenUsage = response.usage;
+    
+      // Call price API to calculate cost
+      let cost = 0;
+      let priceBreakdown = null;
+      
+      try {
+        const priceUrl = new URL('/api/price', origin);
+        const priceResponse = await fetch(priceUrl.toString(), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tokenUsage })
+        });
+        
+        if (!priceResponse.ok) {
+          console.error('Failed to calculate price via API');
+        }
+      } catch (error) {
+        console.error('Error calling price API:', error);
+      } 
+
+      // Update chat with cost and token usage
+      // esto va en price/route.ts
+      // que no se llame api/price/route.ts, que se llame api/chat/update/route.ts
+      const chat = await updateChat(id, {
+        messages_amount: messages.length,
+        chat_cost: cost,
+        total_tokens: response.usage.totalTokens,
+        input_tokens: response.usage.inputTokens,
+        output_tokens: response.usage.outputTokens,
+      });
     }
+
+
+
+    // ===================== TOKEN USAGE ========================
+    
 
     return NextResponse.json({
       message: response.text,
