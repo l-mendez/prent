@@ -30,11 +30,12 @@ export default function Header({ onToggleSidebar, isSidebarOpen }: HeaderProps =
   }, [mobileNavOpen]);
 
   const navigationItems = [
-    { href: "/product", label: "Inicio", icon: "dashboard" },
-    { href: "/product/misturnos", label: "Mis Turnos", icon: "calendar" },
-    { href: "/product/record", label: "Registro", icon: "microphone" },
-    { href: "/product/simulacion", label: "Simulación", icon: "play" },
-    { href: "/product/estudios", label: "Estudios", icon: "document" }
+    { href: "/consultorio", label: "Consultorio", icon: "document" },
+    { href: "/urgencias", label: "Urgencias", icon: "document" },
+    { href: "/misturnos", label: "Mis Turnos", icon: "calendar" },
+    { href: "/record", label: "Registro", icon: "microphone" },
+    { href: "/simulacion", label: "Simulación", icon: "play" },
+    { href: "/estudios", label: "Estudios", icon: "document" }
   ];
 
   const getIcon = (iconName: string) => {

@@ -1,8 +1,8 @@
 'use client';
 
 import { useCallback, useMemo, useRef, useState } from 'react';
-import Header from '@/app/product/components/Header';
-import { summarize, responseToQuestion, type ApiSegment } from '@/app/product/estudios/utilts';
+import Header from '@/app/(product)/components/Header';
+import { summarize, responseToQuestion, type ApiSegment } from '@/app/(product)/estudios/utilts';
 
 type ParsedDoc = { fileName: string };
 

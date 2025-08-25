@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/db/supabaseClient';
-import type { DoctorWithCurrent, PacienteRel } from '../../product/types';
+import type { DoctorWithCurrent, PacienteRel } from '@/app/(product)/types';
 
 export async function GET(_request: NextRequest) {
   try {

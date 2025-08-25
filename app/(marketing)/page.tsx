@@ -23,7 +23,7 @@ export default function Home() {
             </p>
             <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4">
               <Link 
-                href="/product" 
+                href="/consultorio" 
                 className="group inline-flex items-center justify-center rounded-full bg-brand px-6 sm:px-8 py-3 sm:py-4 text-white font-medium shadow-lg transition-all duration-500 ease-in-out hover:brightness-110 hover:scale-105 hover:shadow-xl hover:shadow-brand/30 active:scale-95 text-sm sm:text-base"
               >
                 <span>{t('hero.demo')}</span>
@@ -52,28 +52,34 @@ export default function Home() {
         <div className="grid gap-4 sm:gap-6 md:grid-cols-3 md:items-stretch">
           {[
             {
-              title: t('value.consultation.title'),
-              desc: t('value.consultation.desc'),
+              title: 'Consultorio',
+              desc: 'Agenda + interrogatorio clínico con resumen configurable.',
               icon: "/icons/capacity.svg",
-              href: "/product",
+              href: "/consultorio",
             },
             {
-              title: t('value.medics.title'),
-              desc: t('value.medics.desc'),
+              title: 'Urgencias',
+              desc: 'Triage configurable + interrogatorio clínico y resumen.',
               icon: "/icons/coordination.svg",
-              href: "/product/record",
+              href: "/urgencias",
+            },
+            {
+              title: 'Asistente de Voz',
+              desc: 'Dictá o grabá la consulta y la IA arma el resumen.',
+              icon: "/icons/coordination.svg",
+              href: "/record",
             },
             {
               title: t('value.outcomes.title'),
               desc: t('value.outcomes.desc'),
               icon: "/icons/revenue.svg",
-              href: "/product/misturnos",
+              href: "/misturnos",
             },
             {
               title: 'Analizador de Estudios',
               desc: 'Carga cientos de estudios, obtené un resumen y preguntá con citas.',
               icon: "/icons/coordination.svg",
-              href: "/product/estudios",
+              href: "/estudios",
             },
           ].map((item) => {
             const content = (
@@ -164,7 +170,7 @@ export default function Home() {
             <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight transition-colors duration-300 ease-out group-hover:text-brand">{t('cta.title')}</h2>
             <p className="mt-2 sm:mt-4 text-sm sm:text-base text-black/70 dark:text-white/70 transition-colors duration-300 ease-out group-hover:text-black dark:group-hover:text-white leading-relaxed">{t('cta.description')}</p>
             <Link
-              href="/product"
+              href="/consultorio"
               className="mt-6 sm:mt-8 inline-flex items-center justify-center rounded-full bg-brand px-6 sm:px-8 py-3 sm:py-4 text-white font-medium shadow-lg transition-all duration-200 ease-out hover:brightness-110 hover:shadow-xl hover:shadow-brand/30 hover:scale-105 active:scale-95 text-sm sm:text-base"
             >
               <span>{t('cta.demo')}</span>

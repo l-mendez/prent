@@ -1,8 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Header from '@/app/product/components/Header';
-import LoadingScreen from '@/app/product/components/LoadingScreen';
+import Header from '@/app/(product)/components/Header';
+import LoadingScreen from '@/app/(product)/components/LoadingScreen';
 
 type SpeechRecognitionAlternativeLike = {
   transcript: string;

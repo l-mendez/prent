@@ -2,7 +2,7 @@ import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
 import { generateText, tool } from 'ai';
 import { NextRequest, NextResponse } from 'next/server';
-import { ChatUsage, ConversationMessage } from '@/app/product/types';
+import { ChatUsage, ConversationMessage } from '@/app/(product)/types';
 import { createChat, updateChat } from '@/db/utils';
 
 const getDateAndTime = () => {
@@ -243,16 +243,13 @@ export async function POST(request: NextRequest) {
       },
     });
     
-    console.log('id', chatId);
     if (!chatId) {
-      console.log('Creating chat');
       const result = await createChat(apiKey, response.usage as unknown as ChatUsage);
       if (result && 'id' in result) {
         chatId = result.id as number;
       }
     } else {      
       try {
-        console.log('Updating chat');
         await updateChat(apiKey, chatId, response.usage as unknown as ChatUsage);
       } catch (error) {
         console.error('Error calling price API:', error);

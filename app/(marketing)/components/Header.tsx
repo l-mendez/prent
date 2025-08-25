@@ -45,7 +45,7 @@ export default function Header() {
               {language === 'en' ? 'ES' : 'EN'}
             </span>
           </button>
-          <Link href="/product" className="inline-flex items-center rounded-full bg-brand px-4 py-2 text-white text-sm font-medium shadow-sm hover:brightness-110 hover:scale-105 hover:shadow-lg transition-all duration-200 ease-in-out active:scale-95">{t('nav.demo')}</Link>
+          <Link href="/consultorio" className="inline-flex items-center rounded-full bg-brand px-4 py-2 text-white text-sm font-medium shadow-sm hover:brightness-110 hover:scale-105 hover:shadow-lg transition-all duration-200 ease-in-out active:scale-95">{t('nav.demo')}</Link>
         </div>
         
         {/* Mobile Actions */}
@@ -110,7 +110,7 @@ export default function Header() {
             </a>
             <div className="pt-2 border-t border-black/5 dark:border-white/10">
               <Link 
-                href="/product" 
+                href="/consultorio" 
                 className="block w-full text-center rounded-full bg-brand px-4 py-3 text-white text-sm font-medium shadow-sm hover:brightness-110 transition-all duration-200 ease-in-out"
                 onClick={() => setIsMobileMenuOpen(false)}
               >

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/db/supabaseClient';
-import type { Turno } from '../../product/types';
+import type { Turno } from '../../(product)/types';
 
 function isValidDateString(dateStr: string): boolean {
   // Expect format YYYY-MM-DD

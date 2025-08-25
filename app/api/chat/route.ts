@@ -2,7 +2,7 @@ import { openai } from '@ai-sdk/openai';
 import {generateObject} from 'ai';
 import z from 'zod';
 import { NextRequest, NextResponse } from 'next/server';
-import type { ConversationMessage, OutputFormat, NextQuestionPayload, GenerateTextResult, ChatUsage } from '@/app/product/types';
+import type { ConversationMessage, OutputFormat, NextQuestionPayload, GenerateTextResult, ChatUsage } from '@/app/(product)/types';
 import { NoObjectGeneratedError } from 'ai';
 import { createChat, updateChat } from '@/db/utils';
 

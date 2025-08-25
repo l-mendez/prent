@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/db/supabaseClient';
-import type { NewPaciente } from '../../product/types';
+import type { NewPaciente } from '../../(product)/types';
 
 export async function POST(request: NextRequest) {
   try {

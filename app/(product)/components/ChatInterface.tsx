@@ -20,7 +20,7 @@ type ResponseFormat = {
 
 let chatId: number | undefined = undefined;
 
-export default function ChatInterface() {
+export default function ChatInterface({ mode }: { mode: 'urgencias' | 'consultorio' }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [mounted, setMounted] = useState(false);
   const [hasGeneratedSummary, setHasGeneratedSummary] = useState(false);
@@ -59,7 +59,6 @@ Verde: Dolor de cabeza leve, resfriado común, esguince leve.
 Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
   const [triageCriteria, setTriageCriteria] = useState<string>(defaultTriageCriteria);
   const [summaryDraft, setSummaryDraft] = useState<string | null>(null);
-  const [mode, setMode] = useState<'urgencias' | 'consultorio'>('consultorio');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const configDetailsRef = useRef<HTMLDetailsElement>(null);
   const chatLocked = hasGeneratedSummary; // Bloquea el chat tras el primer resumen generado
@@ -74,21 +73,6 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
     setSummaryFormat(defaultSummaryFormat);
     setKeyInfo(defaultKeyInfo);
     setTriageCriteria(defaultTriageCriteria);
-  };
-
-  const handleModeToggle = () => {
-    if (configLocked || chatLocked) return;
-    setMode(prev => {
-      const next = prev === 'urgencias' ? 'consultorio' : 'urgencias';
-      // Ajustar mensaje inicial según el modo seleccionado
-      if (next === 'consultorio') {
-        setMessages([{ role: 'assistant', content: 'Hola, ¿cómo te puedo ayudar a agendar tu turno hoy?' }]);
-      } else {
-        setMessages([{ role: 'assistant', content: 'Bienvenido, ¿cuál es la causa principal de tu consulta?' }]);
-      }
-      setHasAppointment(false);
-      return next;
-    });
   };
 
 
@@ -138,8 +122,7 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
 
 
   const getMedicalResponse = async (allMessages: Message[], summary: string | null, summaryFormat: string, keyInfo: string, mode: string, chatId: number | undefined, signal?: AbortSignal): Promise<ResponseFormat> => {
-    console.log('Getting medical response');
-    console.log('chatId', chatId);
+
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: {
@@ -367,48 +350,36 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
                 </svg>
                 <span className="hidden sm:inline">Configuración</span>
               </summary>
-              <div className="fixed inset-x-2 top-16 z-20 sm:absolute sm:right-0 sm:inset-x-auto sm:top-auto sm:mt-2 w-auto sm:w-[38rem] sm:max-w-[90vw] rounded-xl border border-slate-200 bg-white shadow-2xl max-h-[calc(100vh-5rem)] overflow-y-auto">
+              <div className="fixed left-1/2 -translate-x-1/2 top-24 z-[60] w-[calc(100vw-1rem)] sm:right-6 sm:left-auto sm:translate-x-0 sm:w-[38rem] sm:max-w-[90vw] rounded-2xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-black/60 backdrop-blur shadow-2xl max-h-[min(70vh,28rem)] overflow-y-auto">
                 <div className="relative">
-                  <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-400 via-sky-400 to-violet-500" />
+                  <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand to-cyan-400" />
                   <div className="p-3 sm:p-4">
                     <div className="mb-3 flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-slate-700">Modo</span>
-                        <span className={`text-[11px] px-2 py-0.5 rounded-full ${mode === 'urgencias' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
+                        <span className="text-xs font-medium text-black/70 dark:text-white/70">Modo</span>
+                        <span className={`text-[11px] px-2 py-0.5 rounded-full ${mode === 'urgencias' ? 'bg-red-100 text-red-700' : 'bg-cyan-100 text-cyan-700'}`}>
                           {mode === 'urgencias' ? 'Urgencias' : 'Consultorio'}
                         </span>
                       </div>
-                      <button
-                        type="button"
-                        onClick={handleModeToggle}
-                        disabled={configLocked || chatLocked}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${mode === 'consultorio' ? 'bg-blue-600' : 'bg-red-600'} disabled:opacity-50 disabled:cursor-not-allowed`}
-                        aria-label="Alternar modo"
-                        aria-pressed={mode === 'consultorio'}
-                      >
-                        <span
-                          className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${mode === 'consultorio' ? 'translate-x-6' : 'translate-x-1'}`}
-                        />
-                      </button>
                     </div>
                     <div className="mb-3 flex items-start gap-3">
-                      <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-sky-500 text-white shadow">
+                      <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand/30 text-brand shadow">
                         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M12 20h9" />
                           <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z" />
                         </svg>
                       </div>
                       <div>
-                        <div className="text-sm font-semibold text-slate-900">Configuración</div>
-                        <div className="text-xs text-slate-500">Define el formato y qué información debe priorizarse al generar el resumen.</div>
+                        <div className="text-sm font-semibold text-black dark:text-white">Configuración</div>
+                        <div className="text-xs text-black/60 dark:text-white/60">Define el formato y qué información debe priorizarse al generar el resumen.</div>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4">
-                      <div className="rounded-lg border border-slate-200 p-3 bg-slate-50">
-                        <label className="block text-xs font-medium text-slate-700 mb-1">Formato del resumen</label>
+                      <div className="rounded-lg border border-black/10 dark:border-white/10 p-3 bg-white/60 dark:bg-white/5">
+                        <label className="block text-xs font-medium text-black/70 dark:text-white/70 mb-1">Formato del resumen</label>
                         <textarea
-                          className="w-full text-xs font-mono border border-slate-300 rounded-md p-2 text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                          className="w-full text-xs font-mono border border-black/10 dark:border-white/10 rounded-md p-2 text-black dark:text-white bg-white/80 dark:bg-black/20 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
                           rows={4}
                           placeholder={`Ejemplo:\nMOTIVO DE CONSULTA:\n\nANTECEDENTES PERSONALES:\n...`}
                           value={summaryFormat}
@@ -416,50 +387,54 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
                           disabled={configLocked || chatLocked}
                         />
                         <div className="mt-1 flex items-center justify-between">
-                          <p className="text-[11px] text-slate-500">Mantén títulos en MAYÚSCULAS y orden fijo.</p>
-                          <span className="text-[11px] text-slate-500">{summaryFormat.length} caracteres</span>
+                          <p className="text-[11px] text-black/60 dark:text-white/60">Mantené títulos en MAYÚSCULAS y orden fijo.</p>
+                          <span className="text-[11px] text-black/60 dark:text-white/60">{summaryFormat.length} caracteres</span>
                         </div>
                       </div>
 
-                      <div className="rounded-lg border border-slate-200 p-3 bg-slate-50">
-                        <label className="block text-xs font-medium text-slate-700 mb-1">Información clave a priorizar</label>
-                        <textarea
-                          className="w-full text-xs border border-slate-300 rounded-md p-2 text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                          rows={4}
-                          placeholder={`Ejemplo:\n- Síntomas clave (inicio, duración, intensidad, localización...)\n- Banderas rojas\n- Antecedentes y riesgos pertinentes`}
-                          value={keyInfo}
-                          onChange={(e) => setKeyInfo(e.target.value)}
-                          disabled={configLocked || chatLocked}
-                        />
-                        <div className="mt-1 flex items-center justify-between">
-                          <p className="text-[11px] text-slate-500">Usa viñetas cortas y directas.</p>
-                          <span className="text-[11px] text-slate-500">{keyInfo.length} caracteres</span>
+                      {mode === 'consultorio' && (
+                        <div className="rounded-lg border border-black/10 dark:border-white/10 p-3 bg-white/60 dark:bg-white/5">
+                          <label className="block text-xs font-medium text-black/70 dark:text-white/70 mb-1">Información clave a priorizar</label>
+                          <textarea
+                            className="w-full text-xs border border-black/10 dark:border-white/10 rounded-md p-2 text-black dark:text-white bg-white/80 dark:bg-black/20 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+                            rows={4}
+                            placeholder={`Ejemplo:\n- Síntomas clave (inicio, duración, intensidad, localización...)\n- Banderas rojas\n- Antecedentes y riesgos pertinentes`}
+                            value={keyInfo}
+                            onChange={(e) => setKeyInfo(e.target.value)}
+                            disabled={configLocked || chatLocked}
+                          />
+                          <div className="mt-1 flex items-center justify-between">
+                            <p className="text-[11px] text-black/60 dark:text-white/60">Usá viñetas cortas y directas.</p>
+                            <span className="text-[11px] text-black/60 dark:text-white/60">{keyInfo.length} caracteres</span>
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
 
-                <div className="mt-4 rounded-lg border border-slate-200 p-3 bg-slate-50">
-                  <label className="block text-xs font-medium text-slate-700 mb-1">Criterios de triaje (editable)</label>
-                  <textarea
-                    className="w-full text-xs border border-slate-300 rounded-md p-2 text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
-                    rows={6}
-                    placeholder={`Rojo: ...\nNaranja: ...\nAmarillo: ...\nVerde: ...\nAzul: ...`}
-                    value={triageCriteria}
-                    onChange={(e) => setTriageCriteria(e.target.value)}
-                    disabled={configLocked || chatLocked}
-                  />
-                  <div className="mt-1 flex items-center justify-between">
-                    <p className="text-[11px] text-slate-500">Un criterio por línea en el formato “Nivel: condiciones”.</p>
-                    <span className="text-[11px] text-slate-500">{triageCriteria.length} caracteres</span>
+                {mode === 'urgencias' && (
+                  <div className="mt-4 rounded-lg border border-black/10 dark:border-white/10 p-3 bg-white/60 dark:bg-white/5">
+                    <label className="block text-xs font-medium text-black/70 dark:text-white/70 mb-1">Criterios de triaje (editable)</label>
+                    <textarea
+                      className="w-full text-xs border border-black/10 dark:border-white/10 rounded-md p-2 text-black dark:text-white bg-white/80 dark:bg-black/20 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent disabled:bg-black/10 disabled:text-black/50 dark:disabled:bg-white/10 dark:disabled:text-white/50 disabled:cursor-not-allowed"
+                      rows={6}
+                      placeholder={`Rojo: ...\nNaranja: ...\nAmarillo: ...\nVerde: ...\nAzul: ...`}
+                      value={triageCriteria}
+                      onChange={(e) => setTriageCriteria(e.target.value)}
+                      disabled={configLocked || chatLocked}
+                    />
+                    <div className="mt-1 flex items-center justify-between">
+                      <p className="text-[11px] text-black/60 dark:text-white/60">Un criterio por línea en el formato “Nivel: condiciones”.</p>
+                      <span className="text-[11px] text-black/60 dark:text-white/60">{triageCriteria.length} caracteres</span>
+                    </div>
                   </div>
-                </div>
+                )}
 
                     <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
-                      <div className="text-[11px] text-slate-500">Los cambios se aplican automáticamente al próximo resumen.</div>
+                      <div className="text-[11px] text-black/60 dark:text-white/60">Los cambios se aplican automáticamente al próximo resumen.</div>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={resetConfig}
-                          className="inline-flex items-center gap-1 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 active:scale-[0.98] transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="inline-flex items-center gap-1 rounded-md border border-black/10 dark:border-white/10 bg-white/70 dark:bg-white/10 px-3 py-1.5 text-xs font-medium text-black/80 dark:text-white/80 hover:bg-white active:scale-[0.98] transition disabled:opacity-50 disabled:cursor-not-allowed"
                           type="button"
                           disabled={configLocked || chatLocked}
                         >

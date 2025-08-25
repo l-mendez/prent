@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateObject, Output } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
-import type { ChatUsage, ConversationMessage } from '@/app/product/types';
+import type { ChatUsage, ConversationMessage } from '@/app/(product)/types';
 import {apiKeyExists, calculateCost, updateApiKeyUsage } from '@/db/utils';
 
 const getLastTenMessages = (messages: ConversationMessage[]): ConversationMessage[] => {

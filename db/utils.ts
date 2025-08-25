@@ -1,5 +1,5 @@
 import { getSupabaseServerClient } from './supabaseClient';
-import { ChatUsage } from '@/app/product/types';
+import { ChatUsage } from '@/app/(product)/types';
 import { NextResponse } from 'next/server';
 
 const supabase = getSupabaseServerClient();
