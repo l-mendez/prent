@@ -69,6 +69,12 @@ export default function Home() {
               icon: "/icons/revenue.svg",
               href: "/product/misturnos",
             },
+            {
+              title: 'Analizador de Estudios',
+              desc: 'Carga cientos de estudios, obtené un resumen y preguntá con citas.',
+              icon: "/icons/coordination.svg",
+              href: "/product/estudios",
+            },
           ].map((item) => {
             const content = (
               <div className="group h-full flex flex-col rounded-2xl border-2 border-black/20 dark:border-white/20 p-4 sm:p-6 bg-white/70 dark:bg-white/8 backdrop-blur transition-all duration-300 ease-in-out hover:shadow-xl hover:shadow-brand/20 hover:-translate-y-1 hover:border-brand hover:bg-white dark:hover:bg-white/15 active:scale-98 active:translate-y-0 cursor-pointer relative overflow-hidden">
