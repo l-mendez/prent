@@ -1,5 +1,5 @@
 import { openai } from '@ai-sdk/openai';
-import {generateObject, generateText, Output, tool} from 'ai';
+import {generateObject} from 'ai';
 import z from 'zod';
 import { NextRequest, NextResponse } from 'next/server';
 import type { ConversationMessage, OutputFormat, NextQuestionPayload, GenerateTextResult, ChatUsage } from '@/app/product/types';

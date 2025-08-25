@@ -33,7 +33,8 @@ export default function Header({ onToggleSidebar, isSidebarOpen }: HeaderProps =
     { href: "/product", label: "Inicio", icon: "dashboard" },
     { href: "/product/misturnos", label: "Mis Turnos", icon: "calendar" },
     { href: "/product/record", label: "Registro", icon: "microphone" },
-    { href: "/product/simulacion", label: "Simulación", icon: "play" }
+    { href: "/product/simulacion", label: "Simulación", icon: "play" },
+    { href: "/product/estudios", label: "Estudios", icon: "document" }
   ];
 
   const getIcon = (iconName: string) => {
@@ -53,6 +54,10 @@ export default function Header({ onToggleSidebar, isSidebarOpen }: HeaderProps =
       case "play":
         return (
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m-9 5a9 9 0 1118 0 9 9 0 01-18 0z" />
+        );
+      case "document":
+        return (
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h6m-6 4h10M7 15h10M6 5a2 2 0 012-2h6l4 4v12a2 2 0 01-2 2H8a2 2 0 01-2-2V5z" />
         );
       default:
         return null;
