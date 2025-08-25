@@ -169,14 +169,14 @@ export default function MisTurnosPage() {
   }
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden flex flex-col">
+    <div className="relative min-h-screen w-screen flex flex-col">
       {/* Background effects similar to marketing page */}
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(40%_30%_at_50%_-10%,theme(colors.brand/20),transparent_60%),radial-gradient(30%_20%_at_80%_10%,theme(colors.cyan.400/20),transparent_60%)]" />
       <div className="pointer-events-none absolute -top-10 sm:-top-20 -left-10 sm:-left-20 h-40 w-40 sm:h-72 sm:w-72 rounded-full bg-brand/20 blur-3xl animate-floaty-slow" />
       <div className="pointer-events-none absolute top-20 sm:top-40 -right-8 sm:-right-16 h-48 w-48 sm:h-80 sm:w-80 rounded-full bg-cyan-400/20 blur-3xl animate-floaty-slow" />
       
       <Header />
-      <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 overflow-hidden flex flex-col min-h-0">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 overflow-y-auto flex flex-col min-h-0">
         <div className="mb-4 sm:mb-6 text-center flex-shrink-0">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight">
             Calendario de <span className="bg-gradient-to-r from-brand to-cyan-400 bg-clip-text text-transparent">Turnos</span>
