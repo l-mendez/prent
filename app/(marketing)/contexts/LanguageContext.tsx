@@ -61,7 +61,7 @@ const translations = {
     // Hero section
     'hero.title': 'Soluciones de IA para',
     'hero.title.hospitals': 'hospitales',
-    'hero.description': 'Prent AI optimiza el flujo de pacientes, reduce los retrasos operativos y descubre oportunidades de integridad de ingresos en toda su red hospitalaria. Somos un equipo de ingenieros apasionados por usar la IA para mejorar la calidad de la atención.',
+    'hero.description': 'Nuestro objetivo es mejorar la calidad de la atención, reducir los retrasos operativos, y reducir costos en el sector de la salud.',
     'hero.demo': 'Demo',
     'hero.how': 'Cómo funciona',
     
