@@ -47,6 +47,74 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Feature: Gestión de turnos automática */}
+      <section id="features" className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 md:py-20">
+        <div className="grid gap-8 sm:gap-10 md:grid-cols-2 md:items-center">
+          {/* Copy */}
+          <div>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight">Gestión de turnos automática</h2>
+            <p className="mt-4 text-black/70 dark:text-white/70 leading-relaxed">
+              Asistente que agenda turnos por chat de forma autónoma y en tiempo real.
+            </p>
+            <Link 
+              href="/consultorio"
+              className="mt-6 inline-flex items-center justify-center rounded-full bg-brand px-6 sm:px-8 py-3 sm:py-4 text-white font-medium shadow-lg transition-all duration-200 ease-out hover:brightness-110 hover:shadow-xl hover:shadow-brand/30 hover:scale-105 active:scale-95 text-sm sm:text-base"
+            >
+              Probar en consultorio
+              <svg 
+                className="ml-2 h-4 w-4 transition-transform duration-200 ease-out" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                xmlns="http://www.w3.org/2000/svg" 
+                aria-hidden="true"
+              >
+                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </Link>
+          </div>
+
+          {/* Phone with chat */}
+          <div className="relative flex justify-center md:justify-end">
+            <div className="w-[280px] sm:w-[320px] rounded-[2rem] border-2 border-black/10 dark:border-white/10 bg-white dark:bg-white/5 p-3 shadow-2xl">
+              {/* Notch */}
+              <div className="mx-auto mb-3 h-5 w-28 rounded-b-xl bg-black/10 dark:bg-white/10" />
+              <div className="h-[440px] overflow-hidden rounded-2xl border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-3 flex flex-col gap-2">
+                {/* Messages */}
+                <div className="flex flex-col gap-2 text-[13px] leading-relaxed">
+                  {/* User */}
+                  <div className="self-end max-w-[80%] rounded-2xl rounded-tr-sm bg-brand text-white px-3 py-2 shadow-sm">
+                    Hola quisiera sacar un turno para el martes que viene
+                  </div>
+                  {/* Bot */}
+                  <div className="self-start max-w-[85%] rounded-2xl rounded-tl-sm bg-white dark:bg-white/10 text-black/80 dark:text-white/85 px-3 py-2 shadow-sm border border-black/10 dark:border-white/10">
+                    Dale, a qué hora estabas buscando?
+                  </div>
+                  {/* User */}
+                  <div className="self-end max-w-[70%] rounded-2xl rounded-tr-sm bg-brand text-white px-3 py-2 shadow-sm">
+                    A las 4 de la tarde
+                  </div>
+                  {/* Bot */}
+                  <div className="self-start max-w-[90%] rounded-2xl rounded-tl-sm bg-white dark:bg-white/10 text-black/80 dark:text-white/85 px-3 py-2 shadow-sm border border-black/10 dark:border-white/10">
+                    Disculpá a las 16:00 no tenemos disponibilidad
+                  </div>
+                  <div className="self-start max-w-[90%] rounded-2xl rounded-tl-sm bg-white dark:bg-white/10 text-black/80 dark:text-white/85 px-3 py-2 shadow-sm border border-black/10 dark:border-white/10">
+                    Pero te puedo ofrecer a las 16:30
+                  </div>
+                  <div className="self-start max-w-[60%] rounded-2xl rounded-tl-sm bg-white dark:bg-white/10 text-black/80 dark:text-white/85 px-3 py-2 shadow-sm border border-black/10 dark:border-white/10">
+                    Te sirve?
+                  </div>
+                </div>
+                {/* Input bar (decorative) */}
+                <div className="mt-auto flex items-center gap-2 rounded-full border border-black/10 dark:border-white/10 bg-white dark:bg-white/10 px-3 py-2 text-black/70 dark:text-white/70">
+                  <div className="h-2 w-2 rounded-full bg-brand/80" />
+                  <div className="text-xs">Escribí un mensaje…</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Value props */}
       <section id="solutions" className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 md:py-20">
         <div className="grid gap-4 sm:gap-6 md:grid-cols-3 md:items-stretch">
