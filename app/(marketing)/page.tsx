@@ -170,23 +170,6 @@ export default function Home() {
               </div>
 
             </div>
-
-            {/* CTA */}
-            <Link 
-              href="/record"
-              className="mt-6 inline-flex items-center justify-center rounded-full bg-brand px-6 sm:px-8 py-3 sm:py-4 text-white font-medium shadow-lg transition-all duration-200 ease-out hover:brightness-110 hover:shadow-xl hover:shadow-brand/30 hover:scale-105 active:scale-95 text-sm sm:text-base"
-            >
-              Probar asistente de voz
-              <svg 
-                className="ml-2 h-4 w-4 transition-transform duration-200 ease-out" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                xmlns="http://www.w3.org/2000/svg" 
-                aria-hidden="true"
-              >
-                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </Link>
           </div>
 
           {/* Summary bullets */}
@@ -217,12 +200,38 @@ export default function Home() {
               </ul>
             </div>
           </div>
+          {/* CTA moved to come after summary on mobile; spans full width on desktop */}
+          <div className="md:col-span-2">
+            <Link 
+              href="/record"
+              className="mt-6 inline-flex items-center justify-center rounded-full bg-brand px-6 sm:px-8 py-3 sm:py-4 text-white font-medium shadow-lg transition-all duration-200 ease-out hover:brightness-110 hover:shadow-xl hover:shadow-brand/30 hover:scale-105 active:scale-95 text-sm sm:text-base"
+            >
+              Probar asistente de voz
+              <svg 
+                className="ml-2 h-4 w-4 transition-transform duration-200 ease-out" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                xmlns="http://www.w3.org/2000/svg" 
+                aria-hidden="true"
+              >
+                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* Feature: Analizador de estudios */}
       <section id="study-analyzer" className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 md:py-20">
         <div className="grid gap-6 sm:gap-8 md:grid-cols-3 md:items-center">
+          {/* Mobile order: 1) Title/desc 2) Files 3) Arrow 4) Summary 5) CTA */}
+          {/* Heading + description */}
+          <div className="order-1 md:order-3 md:pl-4">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight">Analizador de estudios</h2>
+            <p className="mt-3 text-black/70 dark:text-white/70 leading-relaxed">
+              Subí múltiples estudios (PDFs, imágenes, informes). Nuestra IA los procesa y genera un resumen clínico.
+            </p>
+          </div>
           {/* Left: File/Image symbols collage */}
           <div className="order-2 md:order-1">
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 sm:gap-4">
@@ -311,7 +320,7 @@ export default function Home() {
           </div>
 
           {/* Middle: Arrow */}
-          <div className="order-1 md:order-2 flex items-center justify-center">
+          <div className="order-3 md:order-2 flex items-center justify-center">
             <div className="rounded-full border border-black/15 dark:border-white/15 bg-white/60 dark:bg-white/10 p-3 sm:p-4 shadow-sm">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-7 sm:w-7 text-brand">
                 <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -319,13 +328,9 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right: Summary text */}
-          <div className="order-3 md:order-3 md:pl-4">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight">Analizador de estudios</h2>
-            <p className="mt-3 text-black/70 dark:text-white/70 leading-relaxed">
-              Subí múltiples estudios (PDFs, imágenes, informes). Nuestra IA los procesa y genera un resumen clínico.
-            </p>
-            <div className="mt-5 rounded-2xl border-2 border-black/15 dark:border-white/15 bg-white/70 dark:bg-white/8 p-4">
+          {/* Right: Summary card */}
+          <div className="order-4 md:order-3 md:pl-4">
+            <div className="mt-2 sm:mt-5 rounded-2xl border-2 border-black/15 dark:border-white/15 bg-white/70 dark:bg-white/8 p-4">
               <h3 className="text-base sm:text-lg font-semibold">Resumen de hallazgos</h3>
               <ul className="mt-3 space-y-3 text-sm sm:text-base">
                 <li className="group flex items-start gap-3 p-3 rounded-lg hover:bg-brand/5 transition-colors border border-transparent hover:border-brand/20">
@@ -342,9 +347,12 @@ export default function Home() {
                 </li>
               </ul>
             </div>
+          </div>
+          {/* CTA - after summary on mobile, bottom row on desktop */}
+          <div className="order-5 md:order-3 md:col-span-3">
             <Link 
               href="/estudios"
-              className="mt-6 inline-flex items-center justify-center rounded-full bg-brand px-6 sm:px-8 py-3 sm:py-4 text-white font-medium shadow-lg transition-all duration-200 ease-out hover:brightness-110 hover:shadow-xl hover:shadow-brand/30 hover:scale-105 active:scale-95 text-sm sm:text-base"
+              className="mt-2 sm:mt-4 inline-flex items-center justify-center rounded-full bg-brand px-6 sm:px-8 py-3 sm:py-4 text-white font-medium shadow-lg transition-all duration-200 ease-out hover:brightness-110 hover:shadow-xl hover:shadow-brand/30 hover:scale-105 active:scale-95 text-sm sm:text-base"
             >
               Subir estudios
               <svg 
@@ -364,8 +372,14 @@ export default function Home() {
       {/* Feature: Urgencias (tablet chat + triage) */}
       <section id="urgencias" className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 md:py-20">
         <div className="grid gap-8 sm:gap-10 md:grid-cols-2 md:items-start">
+          {/* Mobile order: 1) Title 2) Desc 3) Tablet chat 4) Triage 5) CTA */}
+          {/* Header (title + description) */}
+          <div className="order-1 md:order-2 md:col-start-2">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight">Urgencias y triage</h2>
+            <p className="mt-3 text-black/70 dark:text-white/70 leading-relaxed">Clasificación automática según criterios de triage, priorizando pacientes de alto riesgo.</p>
+          </div>
           {/* Tablet with chat */}
-          <div className="order-2 md:order-1 flex justify-center md:justify-start">
+          <div className="order-2 md:order-1 md:col-start-1 flex justify-center md:justify-start">
             <div className="w-[360px] sm:w-[420px] rounded-[1.5rem] border-2 border-black/10 dark:border-white/10 bg-white dark:bg-white/5 p-4 shadow-2xl">
               {/* Camera + bezel */}
               <div className="mx-auto mb-4 h-2 w-16 rounded-full bg-black/10 dark:bg-white/10" />
@@ -395,11 +409,8 @@ export default function Home() {
               </div>
             </div>
           </div>
-
-          {/* Triage classification + CTA */}
-          <div className="order-1 md:order-2">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight">Urgencias y triage</h2>
-            <p className="mt-3 text-black/70 dark:text-white/70 leading-relaxed">Clasificación automática según criterios de triage, priorizando pacientes de alto riesgo.</p>
+          {/* Triage classification */}
+          <div className="order-3 md:order-2 md:col-start-2">
             <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
               <div className="rounded-2xl border-2 border-red-500/30 bg-red-50/70 dark:bg-red-500/10 p-4">
                 <h3 className="font-semibold text-red-600 dark:text-red-400">Rojo</h3>
@@ -426,14 +437,16 @@ export default function Home() {
                 </ul>
               </div>
             </div>
-
+          </div>
+          {/* CTA */}
+          <div className="order-4 md:order-2 md:col-start-2">
             <Link 
               href="/urgencias"
-              className="mt-6 inline-flex items-center justify-center rounded-full bg-brand px-6 sm:px-8 py-3 sm:py-4 text-white font-medium shadow-lg transition-all duration-200 ease-out hover:brightness-110 hover:shadow-xl hover:shadow-brand/30 hover:scale-105 active:scale-95 text-sm sm:text-base"
+              className="mt-6 inline-flex items-center justify-center rounded-full bg-brand px-6 sm:px-8 py-3 sm:py-4 text-white font-medium shadow-lg transition-all duración-200 ease-out hover:brightness-110 hover:shadow-xl hover:shadow-brand/30 hover:scale-105 active:scale-95 text-sm sm:text-base"
             >
               Probar triage
               <svg 
-                className="ml-2 h-4 w-4 transition-transform duration-200 ease-out" 
+                className="ml-2 h-4 w-4 transition-transform duración-200 ease-out" 
                 viewBox="0 0 24 24" 
                 fill="none" 
                 xmlns="http://www.w3.org/2000/svg" 
@@ -443,6 +456,87 @@ export default function Home() {
               </svg>
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* Value props (cards under triage) */}
+      <section id="solutions" className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 md:py-20">
+        <div className="grid gap-4 sm:gap-6 md:grid-cols-3 md:items-stretch">
+          {[
+            {
+              title: 'Consultorio',
+              desc: 'Agenda + interrogatorio clínico con resumen configurable.',
+              icon: "/icons/capacity.svg",
+              href: "/consultorio",
+            },
+            {
+              title: 'Urgencias',
+              desc: 'Triage configurable + interrogatorio clínico y resumen.',
+              icon: "/icons/coordination.svg",
+              href: "/urgencias",
+            },
+            {
+              title: 'Asistente de Voz',
+              desc: 'Dictá o grabá la consulta y la IA arma el resumen.',
+              icon: "/icons/coordination.svg",
+              href: "/record",
+            },
+            {
+              title: t('value.outcomes.title'),
+              desc: t('value.outcomes.desc'),
+              icon: "/icons/revenue.svg",
+              href: "/misturnos",
+            },
+            {
+              title: 'Analizador de Estudios',
+              desc: 'Carga cientos de estudios, obtené un resumen y preguntá con citas.',
+              icon: "/icons/coordination.svg",
+              href: "/estudios",
+            },
+          ].map((item) => {
+            const content = (
+              <div className="group h-full flex flex-col rounded-2xl border-2 border-black/20 dark:border-white/20 p-4 sm:p-6 bg-white/70 dark:bg-white/8 backdrop-blur transition-all duration-300 ease-in-out hover:shadow-xl hover:shadow-brand/20 hover:-translate-y-1 hover:border-brand hover:bg-white dark:hover:bg-white/15 active:scale-98 active:translate-y-0 cursor-pointer relative overflow-hidden">
+                <div className="h-10 w-10 rounded-lg bg-brand/10 flex items-center justify-center mb-4 transition-all duration-300 ease-in-out group-hover:bg-brand/15 group-hover:scale-105">
+                  <Image src={item.icon} alt="" width={24} height={24} className="transition-all duration-300 ease-in-out group-hover:scale-105" />
+                </div>
+                {/* Subtle click indicator */}
+                <div className="absolute top-3 right-3 opacity-60 group-hover:opacity-100 transition-opacity duration-300">
+                  <span className="text-xs font-medium text-brand bg-brand/10 px-2 py-1 rounded-full">{t('value.clickToExplore')}</span>
+                </div>
+                
+                <div className="flex-1 flex flex-col">
+                  <div className="flex items-start justify-between flex-1">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-base sm:text-lg transition-all duration-300 ease-in-out group-hover:text-brand underline decoration-transparent group-hover:decoration-brand/50 decoration-2 underline-offset-2">{item.title}</h3>
+                      <p className="mt-2 text-sm text-black/70 dark:text-white/70 transition-all duration-300 ease-in-out group-hover:text-black/80 dark:group-hover:text-white/85 leading-relaxed">{item.desc}</p>
+                    </div>
+                    {/* Prominent clickable arrow */}
+                    <div className="ml-4 flex items-center justify-center w-8 h-8 rounded-full bg-brand/10 border border-brand/20 transition-all duration-300 ease-in-out group-hover:translate-x-1 group-hover:bg-brand group-hover:border-brand group-hover:scale-110 animate-pulse group-hover:animate-none">
+                      <svg 
+                        className="h-4 w-4 text-brand group-hover:text-white transition-colors duration-300" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        xmlns="http://www.w3.org/2000/svg"
+                        aria-hidden="true"
+                      >
+                        <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+
+            return item.href ? (
+              <Link key={item.title} href={item.href} className="block h-full transition-all duration-300 ease-in-out hover:scale-102 active:scale-100">
+                {content}
+              </Link>
+            ) : (
+              <div key={item.title} className="h-full transition-all duration-300 ease-in-out hover:scale-101">
+                {content}
+              </div>
+            );
+          })}
         </div>
       </section>
 
