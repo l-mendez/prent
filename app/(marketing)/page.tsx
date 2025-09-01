@@ -226,14 +226,14 @@ export default function Home() {
         <div className="grid gap-6 sm:gap-8 md:grid-cols-3 md:items-center">
           {/* Mobile order: 1) Title/desc 2) Files 3) Arrow 4) Summary 5) CTA */}
           {/* Heading + description */}
-          <div className="order-1 md:order-3 md:pl-4">
+          <div className="order-1 md:order-1 md:col-start-1 md:col-span-3 md:row-start-1 md:pr-4">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight">Analizador de estudios</h2>
             <p className="mt-3 text-black/70 dark:text-white/70 leading-relaxed">
               Subí múltiples estudios (PDFs, imágenes, informes). Nuestra IA los procesa y genera un resumen clínico.
             </p>
           </div>
           {/* Left: File/Image symbols collage */}
-          <div className="order-2 md:order-1">
+          <div className="order-2 md:order-3 md:col-start-1 md:row-start-2">
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 sm:gap-4">
               {/* Card 1 - PDF */}
               <div className="col-span-1 rounded-xl border-2 border-black/15 dark:border-white/15 bg-white/70 dark:bg-white/8 p-4 flex items-center justify-center">
@@ -320,7 +320,7 @@ export default function Home() {
           </div>
 
           {/* Middle: Arrow */}
-          <div className="order-3 md:order-2 flex items-center justify-center">
+          <div className="order-3 md:order-4 md:col-start-2 md:row-start-2 flex items-center justify-center">
             <div className="rounded-full border border-black/15 dark:border-white/15 bg-white/60 dark:bg-white/10 p-3 sm:p-4 shadow-sm">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-7 sm:w-7 text-brand">
                 <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -329,7 +329,7 @@ export default function Home() {
           </div>
 
           {/* Right: Summary card */}
-          <div className="order-4 md:order-3 md:pl-4">
+          <div className="order-4 md:order-2 md:col-start-3 md:row-start-2 md:pl-4">
             <div className="mt-2 sm:mt-5 rounded-2xl border-2 border-black/15 dark:border-white/15 bg-white/70 dark:bg-white/8 p-4">
               <h3 className="text-base sm:text-lg font-semibold">Resumen de hallazgos</h3>
               <ul className="mt-3 space-y-3 text-sm sm:text-base">
@@ -349,7 +349,7 @@ export default function Home() {
             </div>
           </div>
           {/* CTA - after summary on mobile, bottom row on desktop */}
-          <div className="order-5 md:order-3 md:col-span-3">
+          <div className="order-5 md:order-4 md:col-span-3">
             <Link 
               href="/estudios"
               className="mt-2 sm:mt-4 inline-flex items-center justify-center rounded-full bg-brand px-6 sm:px-8 py-3 sm:py-4 text-white font-medium shadow-lg transition-all duration-200 ease-out hover:brightness-110 hover:shadow-xl hover:shadow-brand/30 hover:scale-105 active:scale-95 text-sm sm:text-base"
@@ -373,13 +373,54 @@ export default function Home() {
       <section id="urgencias" className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 md:py-20">
         <div className="grid gap-8 sm:gap-10 md:grid-cols-2 md:items-start">
           {/* Mobile order: 1) Title 2) Desc 3) Tablet chat 4) Triage 5) CTA */}
-          {/* Header (title + description) */}
-          <div className="order-1 md:order-2 md:col-start-2">
+          {/* Right column: title, description, triage, CTA */}
+          <div className="order-1 md:order-2 md:col-start-2 md:row-start-1 flex flex-col">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight">Urgencias y triage</h2>
             <p className="mt-3 text-black/70 dark:text-white/70 leading-relaxed">Clasificación automática según criterios de triage, priorizando pacientes de alto riesgo.</p>
+            <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+              <div className="rounded-2xl border-2 border-red-500/30 bg-red-50/70 dark:bg-red-500/10 p-4">
+                <h3 className="font-semibold text-red-600 dark:text-red-400">Rojo</h3>
+                <p className="mt-1 text-sm text-red-900/80 dark:text-red-200/90">Atención inmediata</p>
+                <ul className="mt-2 text-xs space-y-1 text-red-900/80 dark:text-red-200/90">
+                  <li>Dolor torácico + disnea</li>
+                  <li>Compromiso hemodinámico</li>
+                </ul>
+              </div>
+              <div className="rounded-2xl border-2 border-amber-500/30 bg-amber-50/70 dark:bg-amber-500/10 p-4">
+                <h3 className="font-semibold text-amber-600 dark:text-amber-400">Amarillo</h3>
+                <p className="mt-1 text-sm text-amber-900/80 dark:text-amber-200/90">Urgente</p>
+                <ul className="mt-2 text-xs space-y-1 text-amber-900/80 dark:text-amber-200/90">
+                  <li>Fiebre alta persistente</li>
+                  <li>Dolor moderado</li>
+                </ul>
+              </div>
+              <div className="rounded-2xl border-2 border-emerald-500/30 bg-emerald-50/70 dark:bg-emerald-500/10 p-4">
+                <h3 className="font-semibold text-emerald-600 dark:text-emerald-400">Verde</h3>
+                <p className="mt-1 text-sm text-emerald-900/80 dark:text-emerald-200/90">Menor</p>
+                <ul className="mt-2 text-xs space-y-1 text-emerald-900/80 dark:text-emerald-200/90">
+                  <li>Resfrío sin disnea</li>
+                  <li>Dolor leve</li>
+                </ul>
+              </div>
+            </div>
+            <Link 
+              href="/urgencias"
+              className="mt-6 inline-flex items-center justify-center rounded-full bg-brand px-6 sm:px-8 py-3 sm:py-4 text-white font-medium shadow-lg transition-all duration-200 ease-out hover:brightness-110 hover:shadow-xl hover:shadow-brand/30 hover:scale-105 active:scale-95 text-sm sm:text-base"
+            >
+              Probar triage
+              <svg 
+                className="ml-2 h-4 w-4 transition-transform duration-200 ease-out" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                xmlns="http://www.w3.org/2000/svg" 
+                aria-hidden="true"
+              >
+                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </Link>
           </div>
           {/* Tablet with chat */}
-          <div className="order-2 md:order-1 md:col-start-1 flex justify-center md:justify-start">
+          <div className="order-2 md:order-1 md:col-start-1 md:row-start-1 flex justify-center md:justify-start">
             <div className="w-[360px] sm:w-[420px] rounded-[1.5rem] border-2 border-black/10 dark:border-white/10 bg-white dark:bg-white/5 p-4 shadow-2xl">
               {/* Camera + bezel */}
               <div className="mx-auto mb-4 h-2 w-16 rounded-full bg-black/10 dark:bg-white/10" />
@@ -409,53 +450,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-          {/* Triage classification */}
-          <div className="order-3 md:order-2 md:col-start-2">
-            <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-              <div className="rounded-2xl border-2 border-red-500/30 bg-red-50/70 dark:bg-red-500/10 p-4">
-                <h3 className="font-semibold text-red-600 dark:text-red-400">Rojo</h3>
-                <p className="mt-1 text-sm text-red-900/80 dark:text-red-200/90">Atención inmediata</p>
-                <ul className="mt-2 text-xs space-y-1 text-red-900/80 dark:text-red-200/90">
-                  <li>Dolor torácico + disnea</li>
-                  <li>Compromiso hemodinámico</li>
-                </ul>
-              </div>
-              <div className="rounded-2xl border-2 border-amber-500/30 bg-amber-50/70 dark:bg-amber-500/10 p-4">
-                <h3 className="font-semibold text-amber-600 dark:text-amber-400">Amarillo</h3>
-                <p className="mt-1 text-sm text-amber-900/80 dark:text-amber-200/90">Urgente</p>
-                <ul className="mt-2 text-xs space-y-1 text-amber-900/80 dark:text-amber-200/90">
-                  <li>Fiebre alta persistente</li>
-                  <li>Dolor moderado</li>
-                </ul>
-              </div>
-              <div className="rounded-2xl border-2 border-emerald-500/30 bg-emerald-50/70 dark:bg-emerald-500/10 p-4">
-                <h3 className="font-semibold text-emerald-600 dark:text-emerald-400">Verde</h3>
-                <p className="mt-1 text-sm text-emerald-900/80 dark:text-emerald-200/90">Menor</p>
-                <ul className="mt-2 text-xs space-y-1 text-emerald-900/80 dark:text-emerald-200/90">
-                  <li>Resfrío sin disnea</li>
-                  <li>Dolor leve</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          {/* CTA */}
-          <div className="order-4 md:order-2 md:col-start-2">
-            <Link 
-              href="/urgencias"
-              className="mt-6 inline-flex items-center justify-center rounded-full bg-brand px-6 sm:px-8 py-3 sm:py-4 text-white font-medium shadow-lg transition-all duración-200 ease-out hover:brightness-110 hover:shadow-xl hover:shadow-brand/30 hover:scale-105 active:scale-95 text-sm sm:text-base"
-            >
-              Probar triage
-              <svg 
-                className="ml-2 h-4 w-4 transition-transform duración-200 ease-out" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                xmlns="http://www.w3.org/2000/svg" 
-                aria-hidden="true"
-              >
-                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </Link>
-          </div>
+          {/* Removed separate triage and CTA wrappers in favor of the right column above */}
         </div>
       </section>
 
