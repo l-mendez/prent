@@ -36,6 +36,7 @@ export default function ChatInterface({ mode }: { mode: 'urgencias' | 'consultor
   const [scheduledTurnoId, setScheduledTurnoId] = useState<number | null>(null);
   const messagesBuffer = useRef<Message[]>([]);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const [isAssistantTyping, setIsAssistantTyping] = useState(false);
   const hasUserMessage = messages.some((m) => m.role === 'user');
   const { summaryFormat, keyInfo, triageCriteria, lockConfig, setChatLocked } = useChatConfig();
 
@@ -203,6 +204,9 @@ export default function ChatInterface({ mode }: { mode: 'urgencias' | 'consultor
     // Add user message to messages buffer
     messagesBuffer.current.push(userMessage);
 
+    // Show typing indicator while the assistant is thinking/responding
+    setIsAssistantTyping(true);
+
     // Reset timer
     if (timerRef.current) {
       clearTimeout(timerRef.current);
@@ -211,6 +215,7 @@ export default function ChatInterface({ mode }: { mode: 'urgencias' | 'consultor
     timerRef.current = setTimeout(async () => {
       const result = await generateAIResponse(messagesBuffer.current.slice());
       if (!result) {
+        // Aborted due to new message; keep typing indicator on
         return;
       }
       const { message: aiResponse, reserved, shouldSummarize: aiShouldSummarize, id: newChatId } = result;
@@ -236,14 +241,28 @@ export default function ChatInterface({ mode }: { mode: 'urgencias' | 'consultor
       if (assistantMessages.length > 0) {
         // First message immediately
         setMessages(prev => [...prev, assistantMessages[0]]);
-        // Subsequent messages after delay: 500ms per character of that message
-        for (let i = 1; i < assistantMessages.length; i++) {
-          const msg = assistantMessages[i];
-          const delayMs = Math.max(0, msg.content.length * 500);
-          // eslint-disable-next-line no-await-in-loop
-          await sleep(delayMs);
-          setMessages(prev => [...prev, msg]);
+        if (assistantMessages.length === 1) {
+          // Single-part reply: hide typing indicator
+          setIsAssistantTyping(false);
+        } else {
+          // Multi-part reply: keep typing indicator visible between messages
+          setIsAssistantTyping(true);
+          // Subsequent messages after delay: 500ms per character of that message
+          for (let i = 1; i < assistantMessages.length; i++) {
+            const msg = assistantMessages[i];
+            const delayMs = Math.max(0, msg.content.length * 500);
+            // eslint-disable-next-line no-await-in-loop
+            await sleep(delayMs);
+            setMessages(prev => [...prev, msg]);
+            if (i === assistantMessages.length - 1) {
+              // Last part delivered: hide typing indicator
+              setIsAssistantTyping(false);
+            }
+          }
         }
+      } else {
+        // No assistant message to show; hide typing indicator
+        setIsAssistantTyping(false);
       }
 
       // Si se reservó, pasar a interrogación médica sin cargar datos del turno en el historial
@@ -393,6 +412,29 @@ export default function ChatInterface({ mode }: { mode: 'urgencias' | 'consultor
           .map((message, index) => (
             <ChatMessage key={index} message={message} />
           ))}
+        {isAssistantTyping && hasUserMessage && (
+          <div className={`flex justify-start mb-4 sm:mb-6 px-2 sm:px-0`}>
+            <div className={`flex max-w-[90%] sm:max-w-2xl lg:max-w-3xl flex-row`}>
+              {/* Avatar */}
+              <div className={`flex-shrink-0 mr-2 sm:mr-3`}>
+                <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-300 ease-in-out bg-brand shadow-lg shadow-brand/30`}>
+                  <img src="/prent-logo.svg" alt="Prent" className="w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+              </div>
+              {/* Typing bubble */}
+              <div className={`text-left flex-1 min-w-0`}>
+                <div className={`inline-block p-3 sm:p-4 rounded-2xl shadow-lg transition-all duration-300 ease-in-out hover:shadow-xl max-w-full bg-white/60 dark:bg-white/5 backdrop-blur border border-black/10 dark:border-white/10 text-black dark:text-white`}>
+                  <div className="flex items-center gap-1">
+                    <span className="sr-only">Escribiendo…</span>
+                    <span className="w-2 h-2 rounded-full bg-slate-400 dark:bg-slate-300 animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-2 h-2 rounded-full bg-slate-400 dark:bg-slate-300 animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-2 h-2 rounded-full bg-slate-400 dark:bg-slate-300 animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         {!hasUserMessage && mode === 'consultorio' && (
           <div className="mt-2">
             <div className="mx-auto max-w-2xl">
