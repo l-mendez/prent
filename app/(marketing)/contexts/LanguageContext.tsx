@@ -15,9 +15,6 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 const translations = {
   en: {
     // Header
-    'nav.solutions': 'Solutions',
-    'nav.how': 'How it works',
-    'nav.contact': 'Contact',
     'nav.demo': 'Demo',
     
     // Hero section
@@ -25,7 +22,6 @@ const translations = {
     'hero.title.hospitals': 'hospitals',
     'hero.description': 'Prent AI streamlines patient flow, reduces operational delays, and uncovers revenue integrity opportunities across your hospital network. We are a team of engineers that are passionate about using AI to improve the quality of care.',
     'hero.demo': 'Demo',
-    'hero.how': 'How it works',
     
     // Value props
     'value.consultation.title': 'More efficient consultations',
@@ -53,9 +49,6 @@ const translations = {
   },
   es: {
     // Header
-    'nav.solutions': 'Soluciones',
-    'nav.how': 'Cómo funciona',
-    'nav.contact': 'Contacto',
     'nav.demo': 'Demo',
     
     // Hero section
@@ -63,7 +56,6 @@ const translations = {
     'hero.title.hospitals': 'hospitales',
     'hero.description': 'Nuestro objetivo es mejorar la calidad de la atención, reducir los retrasos operativos, y reducir costos en el sector de la salud.',
     'hero.demo': 'Demo',
-    'hero.how': 'Cómo funciona',
     
     // Value props
     'value.consultation.title': 'Chat Pre Consulta/Urgencias',

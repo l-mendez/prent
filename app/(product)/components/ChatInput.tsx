@@ -87,11 +87,6 @@ export default function ChatInput({ onSendMessage, isLoading = false, suggestion
           )}
         </button>
       </form>
-
-      {/* Disclaimer */}
-      <div className="mt-2 sm:mt-3 text-xs text-black/70 dark:text-white/70 text-center px-2">
-        ⚠️ Este modelo sólo tiene propósitos informativos. Consultar siempre con un profesional calificado.
-      </div>
     </div>
   );
 }

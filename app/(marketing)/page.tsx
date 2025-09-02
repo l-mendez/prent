@@ -37,9 +37,6 @@ export default function Home() {
                   <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </Link>
-              <a href="#how" className="inline-flex items-center justify-center rounded-full border border-black/10 dark:border-white/20 px-6 sm:px-8 py-3 sm:py-4 font-medium transition-all duration-500 ease-in-out hover:bg-black/5 dark:hover:bg-white/5 hover:border-black/20 dark:hover:border-white/30 hover:scale-105 hover:shadow-lg active:scale-95 text-sm sm:text-base">
-                {t('hero.how')}
-              </a>
             </div>
           </div>
         </div>

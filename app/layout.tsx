@@ -8,7 +8,7 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://prent.ai"),
-  title: "Prent AI",
+  title: "Prent",
   description: "Orquestación de IA para operaciones hospitalarias",
   icons: [{ rel: "icon", url: "/favicon.svg" }],
 };

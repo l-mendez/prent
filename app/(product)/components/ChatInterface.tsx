@@ -67,6 +67,7 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
   const [scheduledTurnoId, setScheduledTurnoId] = useState<number | null>(null);
   const messagesBuffer = useRef<Message[]>([]);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const hasUserMessage = messages.some((m) => m.role === 'user');
 
 
   const resetConfig = () => {
@@ -84,24 +85,6 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
       }
     }
   }
- 
-// Initialize welcome message after component mounts to avoid hydration mismatch
-  useEffect(() => {
-    setMounted(true);
-    if (mode === 'urgencias') {
-    setMessages([{
-      role: 'assistant',
-      content: `Hola, soy tu asistente de Prent. Estoy para ayudarte.
-
-      ¿Cuál es la causa de tu consulta?`
-    }]);
-  } else {
-    setMessages([{
-      role: 'assistant',
-      content: `Hola, soy tu asistente de Prent. ¿Cómo te puedo ayudar a agendar tu turno hoy?`
-    }]);
-  }
-  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -110,6 +93,11 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Ensure messages render after client mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Close configuration panel when chat/config becomes locked
   useEffect(() => {
@@ -452,10 +440,6 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
                 </div>
               </div>
             </details>
-            <div className="flex items-center space-x-1 sm:space-x-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-lg shadow-green-500/50"></div>
-              <span className="text-xs sm:text-sm text-black/70 dark:text-white/70 hidden sm:inline">IA en línea</span>
-            </div>
           </div>
           </div>
       </div>
@@ -571,6 +555,31 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
           .map((message, index) => (
             <ChatMessage key={index} message={message} />
           ))}
+        {!hasUserMessage && mode === 'consultorio' && (
+          <div className="mt-2">
+            <div className="mx-auto max-w-2xl">
+              <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur p-5 shadow-sm text-center">
+                <div className="flex flex-col items-center">
+                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-sky-500 text-white shadow">
+                    <span className="text-sm font-semibold">C</span>
+                  </div>
+                  <div className="mt-2 text-sm font-semibold text-black dark:text-white">Claudia</div>
+                  <div className="text-[11px] text-black/60 dark:text-white/60">Asistente clínica de IA</div>
+                </div>
+                <div className="mt-3 text-sm text-black/80 dark:text-white/80 leading-relaxed">
+                  Hola, soy Claudia. Mi rol es ayudarte a sacar turnos y guíar la consulta clínica de forma segura y ordenada: detecto banderas rojas y priorizo en urgencias, redacto un resumen estructurado.
+                </div>
+                <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-[12px] text-black/70 dark:text-white/70">
+                  <div className="rounded-md border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 px-3 py-2">• Guiarte con preguntas clínicas</div>
+                  <div className="rounded-md border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 px-3 py-2">• Identificar banderas rojas y triaje</div>
+                  <div className="rounded-md border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 px-3 py-2">• Generar resumen clínico</div>
+                  <div className="rounded-md border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 px-3 py-2">• Proponer/reservar turnos</div>
+                </div>
+                <div className="mt-3 text-[11px] text-black/60 dark:text-white/60">Contame el motivo de consulta para empezar.</div>
+              </div>
+            </div>
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
 

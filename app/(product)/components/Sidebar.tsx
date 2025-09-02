@@ -1,28 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-
 interface SidebarProps {
   onClose?: () => void;
   onNewChat?: () => void;
 }
 
 export default function Sidebar({ onClose, onNewChat }: SidebarProps = {}) {
-  const [conversations, setConversations] = useState<Array<{
-    id: number;
-    title: string;
-    timestamp: string;
-    preview: string;
-  }>>([]);
 
-  useEffect(() => {
-    // Set conversations after mount to avoid hydration mismatch
-    setConversations([
-      { id: 1, title: 'Patient Symptoms Analysis', timestamp: '2 hours ago', preview: 'Fever and headache symptoms...' },
-      { id: 2, title: 'Drug Interaction Check', timestamp: 'Yesterday', preview: 'Checking compatibility of...' },
-      { id: 3, title: 'Diagnosis Assistance', timestamp: '2 days ago', preview: 'Chest pain evaluation...' },
-    ]);
-  }, []);
 
   return (
     <div className="w-80 bg-white/60 dark:bg-white/5 backdrop-blur border-r border-black/10 dark:border-white/10 flex flex-col h-full flex-shrink-0 overflow-hidden">
@@ -55,21 +39,6 @@ export default function Sidebar({ onClose, onNewChat }: SidebarProps = {}) {
           </svg>
           <span>Nueva consulta</span>
         </button>
-      </div>
-
-      {/* Conversations List */}
-      <div className="flex-1 px-3 sm:px-4 pb-3 sm:pb-4 space-y-2 overflow-y-auto overflow-x-hidden min-h-0">
-        {conversations.map((conversation) => (
-          <div 
-            key={conversation.id} 
-            className="group p-3 rounded-xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-brand/5 hover:-translate-y-0.5 hover:border-brand/15 dark:hover:border-brand/20 hover:bg-white/70 dark:hover:bg-white/8 active:scale-98 cursor-pointer"
-            onClick={onClose} // Close mobile sidebar when conversation is selected
-          >
-            <h4 className="font-medium text-sm transition-all duration-300 ease-in-out group-hover:text-brand truncate">{conversation.title}</h4>
-            <p className="text-xs text-black/70 dark:text-white/70 mt-1 transition-all duration-300 ease-in-out group-hover:text-black/80 dark:group-hover:text-white/85 line-clamp-2">{conversation.preview}</p>
-            <p className="text-xs text-black/50 dark:text-white/50 mt-2 transition-all duration-300 ease-in-out group-hover:text-black/60 dark:group-hover:text-white/60 truncate">{conversation.timestamp}</p>
-          </div>
-        ))}
       </div>
 
       {/* Footer */}

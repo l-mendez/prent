@@ -27,10 +27,7 @@ export default function Header() {
         </Link>
         
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-6 text-sm">
-          <a href="#solutions" className="hover:opacity-80 hover:scale-105 transition-all duration-200 ease-in-out">{t('nav.solutions')}</a>
-          <a href="#how" className="hover:opacity-80 hover:scale-105 transition-all duration-200 ease-in-out">{t('nav.how')}</a>
-          <a href="#contact" className="hover:opacity-80 hover:scale-105 transition-all duration-200 ease-in-out">{t('nav.contact')}</a>
+        <nav className="hidden md:flex items-center gap-6 text-sm"> 
         </nav>
         
         {/* Desktop Actions */}
@@ -87,27 +84,6 @@ export default function Header() {
       {isMobileMenuOpen && (
         <div className="md:hidden border-t border-black/5 dark:border-white/10 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md">
           <nav className="px-4 py-4 space-y-3">
-            <a 
-              href="#solutions" 
-              className="block py-2 text-sm hover:text-brand transition-colors duration-200"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              {t('nav.solutions')}
-            </a>
-            <a 
-              href="#how" 
-              className="block py-2 text-sm hover:text-brand transition-colors duration-200"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              {t('nav.how')}
-            </a>
-            <a 
-              href="#contact" 
-              className="block py-2 text-sm hover:text-brand transition-colors duration-200"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              {t('nav.contact')}
-            </a>
             <div className="pt-2 border-t border-black/5 dark:border-white/10">
               <Link 
                 href="/consultorio" 
