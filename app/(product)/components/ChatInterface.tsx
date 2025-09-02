@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
+import { useChatConfig } from '@/app/(product)/components/ChatConfigContext';
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -24,67 +25,21 @@ export default function ChatInterface({ mode }: { mode: 'urgencias' | 'consultor
   const [messages, setMessages] = useState<Message[]>([]);
   const [mounted, setMounted] = useState(false);
   const [hasGeneratedSummary, setHasGeneratedSummary] = useState(false);
-  const [configLocked, setConfigLocked] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [triageDraft, setTriageDraft] = useState<null | { level: 'Rojo' | 'Naranja' | 'Amarillo' | 'Verde' | 'Azul'; reason?: string }>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const defaultSummaryFormat = `MOTIVO DE CONSULTA:
-  
-
-ANTECEDENTES PERSONALES:
-- ENFERMEDADES PREVIAS/CRÓNICAS:
-- INTERNACIONES:
--  ALERGIAS:
--  VACUNAS:
--  ALCOHOL:
--  TABACO:
--  DROGAS:
--  CIRUGÍAS:
--  GINECOLÓGICOS:
--  DIETA:
--  EJERCICIO:
--  TRATAMIENTO HABITUAL:
-
-ANTECEDENTES FAMILIARES:
-`;
-  const defaultKeyInfo = `Sexo\n Edad\n Enfermedades previas o crónicas importantes\n Síntomas clave del problema principal (inicio, duración, intensidad, localización/lateralidad, curso, desencadenantes/alivio, síntomas asociados relevantes)\n Banderas rojas del motivo\n Antecedentes y riesgos pertinentes al caso (no todos si no cambian la conducta): ENFERMEDADES PREVIAS/CRÓNICAS, INTERNACIONES, ALERGIAS, VACUNAS, ALCOHOL, TABACO, DROGAS, CIRUGÍAS, GINECOLÓGICOS, DIETA, EJERCICIO, TRATAMIENTO HABITUAL`;
-
-  const [summaryFormat, setSummaryFormat] = useState<string>(defaultSummaryFormat);
-  const [keyInfo, setKeyInfo] = useState<string>(defaultKeyInfo);
-  const defaultTriageCriteria = `Rojo: Paro cardíaco, dificultad respiratoria severa, hemorragia incontrolable.
-Naranja: Dolor torácico agudo, fractura expuesta, convulsiones.
-Amarillo: Fiebre alta, dolor abdominal moderado, heridas leves.
-Verde: Dolor de cabeza leve, resfriado común, esguince leve.
-Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
-  const [triageCriteria, setTriageCriteria] = useState<string>(defaultTriageCriteria);
   const [summaryDraft, setSummaryDraft] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const configDetailsRef = useRef<HTMLDetailsElement>(null);
-  const chatLocked = hasGeneratedSummary; // Bloquea el chat tras el primer resumen generado
   const [hasAppointment, setHasAppointment] = useState(false);
   const [clinicalContextStartIndex, setClinicalContextStartIndex] = useState<number>(0);
   const [scheduledTurnoId, setScheduledTurnoId] = useState<number | null>(null);
   const messagesBuffer = useRef<Message[]>([]);
   const abortControllerRef = useRef<AbortController | null>(null);
   const hasUserMessage = messages.some((m) => m.role === 'user');
+  const { summaryFormat, keyInfo, triageCriteria, lockConfig, setChatLocked } = useChatConfig();
 
-
-  const resetConfig = () => {
-    setSummaryFormat(defaultSummaryFormat);
-    setKeyInfo(defaultKeyInfo);
-    setTriageCriteria(defaultTriageCriteria);
-  };
-
-
-  const lockConfig = () => {
-    if (!configLocked) {
-      const alreadyHasUserMessage = messages.some((m) => m.role === 'user');
-      if (!alreadyHasUserMessage) {
-        setConfigLocked(true);
-      }
-    }
-  }
+  
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -99,14 +54,7 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
     setMounted(true);
   }, []);
 
-  // Close configuration panel when chat/config becomes locked
-  useEffect(() => {
-    if (configLocked || chatLocked) {
-      if (configDetailsRef.current) {
-        configDetailsRef.current.removeAttribute('open');
-      }
-    }
-  }, [configLocked, chatLocked]);
+  // No inline configuration panel to manage
 
 
   const getMedicalResponse = async (allMessages: Message[], summary: string | null, summaryFormat: string, keyInfo: string, mode: string, chatId: number | undefined, signal?: AbortSignal): Promise<ResponseFormat> => {
@@ -331,140 +279,7 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
             <h2 className="text-base sm:text-lg font-semibold transition-all duration-300 ease-in-out truncate">Consulta Médica</h2>
             <p className="text-xs sm:text-sm text-black/70 dark:text-white/70 truncate">Asistente de IA para profesionales de la salud</p>
           </div>
-          <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-3">
-            <details ref={configDetailsRef} className="relative mr-1 sm:mr-2 group">
-            <summary
-              className={`${configLocked || chatLocked
-                ? 'flex items-center gap-1 sm:gap-2 select-none text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border transition cursor-not-allowed text-black/50 dark:text-white/50 bg-black/10 dark:bg-white/10 border-black/10 dark:border-white/10'
-                : 'group flex items-center gap-1 sm:gap-2 cursor-pointer select-none text-xs sm:text-sm text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-black/10 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur hover:bg-white/70 dark:hover:bg-white/8 hover:border-black/20 dark:hover:border-white/20 transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-md'
-              }`}
-              onClick={(e) => {
-                if (configLocked || chatLocked) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }
-              }}
-              onKeyDown={(e) => {
-                if (configLocked || chatLocked) {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }
-                }
-              }}
-              aria-disabled={configLocked || chatLocked}
-              title={configLocked || chatLocked ? 'La configuración se bloquea tras el primer mensaje o al entregar el resumen.' : undefined}
-            >
-                <svg className="h-4 w-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="3" />
-                  <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 008.6 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H2a2 2 0 010-4h.09A1.65 1.65 0 003.6 8.6a1.65 1.65 0 00-.33-1.82l-.06-.06A2 2 0 016.04 3.9l.06.06A1.65 1.65 0 008 4.29 1.65 1.65 0 009 2.78V2a2 2 0 014 0v.09A1.65 1.65 0 0015.4 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82 1.65 1.65 0 001.51 1H22a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
-                </svg>
-                <span className="hidden sm:inline">Configuración</span>
-              </summary>
-              <div className="fixed left-1/2 -translate-x-1/2 top-24 z-[60] w-[calc(100vw-1rem)] sm:right-6 sm:left-auto sm:translate-x-0 sm:w-[38rem] sm:max-w-[90vw] rounded-2xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-black/60 backdrop-blur shadow-2xl max-h-[min(70vh,28rem)] overflow-y-auto">
-                <div className="relative">
-                  <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand to-cyan-400" />
-                  <div className="p-3 sm:p-4">
-                    <div className="mb-3 flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-black/70 dark:text-white/70">Modo</span>
-                        <span className={`text-[11px] px-2 py-0.5 rounded-full ${mode === 'urgencias' ? 'bg-red-100 text-red-700' : 'bg-cyan-100 text-cyan-700'}`}>
-                          {mode === 'urgencias' ? 'Urgencias' : 'Consultorio'}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="mb-3 flex items-start gap-3">
-                      <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand/30 text-brand shadow">
-                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M12 20h9" />
-                          <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <div className="text-sm font-semibold text-black dark:text-white">Configuración</div>
-                        <div className="text-xs text-black/60 dark:text-white/60">Define el formato y qué información debe priorizarse al generar el resumen.</div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4">
-                      <div className="rounded-lg border border-black/10 dark:border-white/10 p-3 bg-white/60 dark:bg-white/5">
-                        <label className="block text-xs font-medium text-black/70 dark:text-white/70 mb-1">Formato del resumen</label>
-                        <textarea
-                          className="w-full text-xs font-mono border border-black/10 dark:border-white/10 rounded-md p-2 text-black dark:text-white bg-white/80 dark:bg-black/20 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
-                          rows={4}
-                          placeholder={`Ejemplo:\nMOTIVO DE CONSULTA:\n\nANTECEDENTES PERSONALES:\n...`}
-                          value={summaryFormat}
-                          onChange={(e) => setSummaryFormat(e.target.value)}
-                          disabled={configLocked || chatLocked}
-                        />
-                        <div className="mt-1 flex items-center justify-between">
-                          <p className="text-[11px] text-black/60 dark:text-white/60">Mantené títulos en MAYÚSCULAS y orden fijo.</p>
-                          <span className="text-[11px] text-black/60 dark:text-white/60">{summaryFormat.length} caracteres</span>
-                        </div>
-                      </div>
-
-                      {mode === 'consultorio' && (
-                        <div className="rounded-lg border border-black/10 dark:border-white/10 p-3 bg-white/60 dark:bg-white/5">
-                          <label className="block text-xs font-medium text-black/70 dark:text-white/70 mb-1">Información clave a priorizar</label>
-                          <textarea
-                            className="w-full text-xs border border-black/10 dark:border-white/10 rounded-md p-2 text-black dark:text-white bg-white/80 dark:bg-black/20 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
-                            rows={4}
-                            placeholder={`Ejemplo:\n- Síntomas clave (inicio, duración, intensidad, localización...)\n- Banderas rojas\n- Antecedentes y riesgos pertinentes`}
-                            value={keyInfo}
-                            onChange={(e) => setKeyInfo(e.target.value)}
-                            disabled={configLocked || chatLocked}
-                          />
-                          <div className="mt-1 flex items-center justify-between">
-                            <p className="text-[11px] text-black/60 dark:text-white/60">Usá viñetas cortas y directas.</p>
-                            <span className="text-[11px] text-black/60 dark:text-white/60">{keyInfo.length} caracteres</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                {mode === 'urgencias' && (
-                  <div className="mt-4 rounded-lg border border-black/10 dark:border-white/10 p-3 bg-white/60 dark:bg-white/5">
-                    <label className="block text-xs font-medium text-black/70 dark:text-white/70 mb-1">Criterios de triaje (editable)</label>
-                    <textarea
-                      className="w-full text-xs border border-black/10 dark:border-white/10 rounded-md p-2 text-black dark:text-white bg-white/80 dark:bg-black/20 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent disabled:bg-black/10 disabled:text-black/50 dark:disabled:bg-white/10 dark:disabled:text-white/50 disabled:cursor-not-allowed"
-                      rows={6}
-                      placeholder={`Rojo: ...\nNaranja: ...\nAmarillo: ...\nVerde: ...\nAzul: ...`}
-                      value={triageCriteria}
-                      onChange={(e) => setTriageCriteria(e.target.value)}
-                      disabled={configLocked || chatLocked}
-                    />
-                    <div className="mt-1 flex items-center justify-between">
-                      <p className="text-[11px] text-black/60 dark:text-white/60">Un criterio por línea en el formato “Nivel: condiciones”.</p>
-                      <span className="text-[11px] text-black/60 dark:text-white/60">{triageCriteria.length} caracteres</span>
-                    </div>
-                  </div>
-                )}
-
-                    <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
-                      <div className="text-[11px] text-black/60 dark:text-white/60">Los cambios se aplican automáticamente al próximo resumen.</div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={resetConfig}
-                          className="inline-flex items-center gap-1 rounded-md border border-black/10 dark:border-white/10 bg-white/70 dark:bg-white/10 px-3 py-1.5 text-xs font-medium text-black/80 dark:text-white/80 hover:bg-white active:scale-[0.98] transition disabled:opacity-50 disabled:cursor-not-allowed"
-                          type="button"
-                          disabled={configLocked || chatLocked}
-                        >
-                          <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M1 4v6h6" />
-                            <path d="M23 20v-6h-6" />
-                            <path d="M20.49 9A9 9 0 005.64 5.64L1 10" />
-                            <path d="M3.51 15A9 9 0 0018.36 18.36L23 14" />
-                          </svg>
-                          Restablecer
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </details>
-          </div>
-          </div>
+        </div>
       </div>
 
       {/* Summary Panel */}
