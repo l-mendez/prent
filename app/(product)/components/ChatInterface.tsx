@@ -273,7 +273,30 @@ Azul: Cita de seguimiento, solicitud de receta, malestar general leve.`;
         throw new Error('AI response: ' + JSON.stringify(aiResponse) + ' is not a string');
       }
 
-      setMessages(prev => [...prev, { role: 'assistant', content: aiResponse }]);
+      // Split AI response by newlines to render separate assistant messages per line
+      const normalized = aiResponse
+        .replace(/\r\n/g, '\n')
+        .replace(/\u2028|\u2029/g, '\n')
+        .trim();
+      const parts = normalized
+        .split(/\n+/)
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
+      // Sequentially append messages with typing delay for the 2nd, 3rd, ... parts
+      const assistantMessages: Message[] = parts.map((part) => ({ role: 'assistant', content: part }));
+      const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+      if (assistantMessages.length > 0) {
+        // First message immediately
+        setMessages(prev => [...prev, assistantMessages[0]]);
+        // Subsequent messages after delay: 500ms per character of that message
+        for (let i = 1; i < assistantMessages.length; i++) {
+          const msg = assistantMessages[i];
+          const delayMs = Math.max(0, msg.content.length * 500);
+          // eslint-disable-next-line no-await-in-loop
+          await sleep(delayMs);
+          setMessages(prev => [...prev, msg]);
+        }
+      }
 
       // Si se reservó, pasar a interrogación médica sin cargar datos del turno en el historial
       if (reserved && mode === 'consultorio') {
