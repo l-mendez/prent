@@ -22,8 +22,8 @@ export default function Header() {
             }
           }}
         >
-          <Image src="/prent-logo.svg" alt="Prent AI" width={28} height={28} />
-          <span className="text-sm sm:text-base font-semibold tracking-tight">Prent AI</span>
+          <Image src="/prent-logo.svg" alt="Prent" width={28} height={28} />
+          <span className="text-sm sm:text-base font-semibold tracking-tight">Prent</span>
         </Link>
         
         {/* Desktop Navigation */}

@@ -93,8 +93,8 @@ export default function Header({ onToggleSidebar, isSidebarOpen }: HeaderProps =
             href="/" 
             className="flex items-center gap-2 hover:opacity-80 hover:scale-105 transition-all duration-200 ease-in-out active:scale-95"
           >
-            <Image src="/prent-logo.svg" alt="Prent AI" width={28} height={28} />
-            <span className="text-sm sm:text-base font-semibold tracking-tight">Prent AI</span>
+            <Image src="/prent-logo.svg" alt="Prent" width={28} height={28} />
+            <span className="text-sm sm:text-base font-semibold tracking-tight">Prent</span>
           </Link>
 
           {/* Navigation Links - Hidden on mobile, shown on desktop */}

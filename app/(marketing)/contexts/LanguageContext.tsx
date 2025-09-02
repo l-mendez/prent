@@ -20,7 +20,7 @@ const translations = {
     // Hero section
     'hero.title': 'AI Solutions for',
     'hero.title.hospitals': 'hospitals',
-    'hero.description': 'Prent AI streamlines patient flow, reduces operational delays, and uncovers revenue integrity opportunities across your hospital network. We are a team of engineers that are passionate about using AI to improve the quality of care.',
+    'hero.description': 'Prent streamlines patient flow, reduces operational delays, and uncovers revenue integrity opportunities across your hospital network. We are a team of engineers that are passionate about using AI to improve the quality of care.',
     'hero.demo': 'Demo',
     
     // Value props
@@ -40,7 +40,7 @@ const translations = {
     'how.lift': 'No heavy lift for IT',
     
     // CTA
-    'cta.title': 'See Prent AI in action',
+    'cta.title': 'See Prent in action',
     'cta.description': 'Request a walkthrough tailored to your hospital\'s needs.',
     'cta.demo': 'Demo',
     
@@ -74,7 +74,7 @@ const translations = {
     'how.lift': 'Sin carga pesada para TI',
     
     // CTA
-    'cta.title': 'Prent AI en acción',
+    'cta.title': 'Prent en acción',
     'cta.description': 'Solicita una demostración adaptada a las necesidades de tu hospital.',
     'cta.demo': 'Demo',
     

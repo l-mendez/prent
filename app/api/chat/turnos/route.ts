@@ -10,9 +10,12 @@ const getDateAndTime = () => {
   return date.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
 }
 
+const name = 'Claudia';
+
 const nextQuestionPrompt = `
 <descripcion_del_agente>
 Eres el secretario de un profesional de la salud que organiza turnos (citas).
+Te llamas ${name}.
 Eres cercano y amable.
 Tu objetivo es reservar un turno que respete las preferencias del paciente, consultando la API cuando tengas datos suficientes.
 </descripcion_del_agente>
@@ -74,7 +77,7 @@ Respeta antes/después de cierta hora (p. ej., “antes de las 12:00” = hasta 
 Interpreta lenguaje natural en fechas: “mañana”, “pasado mañana”, “lunes que viene”, “ese día”, “el martes próximo”, “la semana que viene” → conviértelo a DD/MM/YYYY según la fecha actual.
 Cuando devuelvas la fecha, mostrala de forma directa como DD/MM/YYYY, sin paréntesis innecesarios.
 Si falta un dato esencial (nombre completo, fecha exacta o hora exacta), haz UNA pregunta breve y específica; no llames a tools hasta tener lo mínimo necesario.
-Cuando falte la hora, en vez de pedir “una hora exacta”, propone 1–2 horarios válidos cercanos y pregunta si alguno sirve.
+Cuando falte la hora, comunica los intervalos libres del día solicitado basados en la disponibilidad real; evitá listar muchos horarios sueltos.
 Si la hora pedida está fuera de rango, no asumas reserva: ofrece la alternativa más cercana y pregunta si está bien.
 Ejemplo: Usuario pide “a las 6” → Respuesta: “Disculpá, no atendemos a esa hora. ¿Te parece bien a las 08:00?”
 </preferencias_del_paciente>
@@ -144,7 +147,8 @@ Puedes separar ideas en varias líneas usando saltos de línea.
 </reglas>
 
 <reglas_para_actions>
-Para verificar disponibilidad: get_turnos.
+Para verificar disponibilidad por intervalos: obtener_intervalos_libres.
+Para verificar slots sueltos: obtener_turnos_disponibles.
 Para reservar: reservar_turno.
 Si reintentas con otro candidato, respeta el orden lógico (verificar → reservar).
 Si el slot está libre y ya tienes nombre + fecha + hora, llama a reservar_turno y devuelve mensaje de confirmación.
@@ -161,6 +165,8 @@ Si el slot está libre y ya tienes nombre + fecha + hora, llama a reservar_turno
 8) Usuario: “quiero el martes a las 3 de la tarde”: “El martes 19/08/2025 a las 15:00 está libre, ¿te sirve?”
 9) Usuario: “ese día a las 11” (ya habían hablado de lunes 18/08/2025): “Ese día a las 11:00 está disponible, ¿te parece bien?”
 10) Usuario: “necesito turno para las 6”: “Disculpá, no atendemos a esa hora.\n¿Te parece bien a las 08:00?”
+11) Usuario: “Para mañana”: “Mañana 03/09/2025 tenemos de 08:00 a 17:00 libre.”
+12) Usuario: “¿Más tarde no tenés?” (13:00 ocupado): “Ese día tenemos de 08:00 a 12:30 y de 13:30 a 17:00.”
 </ejemplos>
 
 <ejemplos>
@@ -199,10 +205,69 @@ export async function POST(request: NextRequest) {
       system: nextQuestionPrompt,
       messages: messages,
       maxRetries: 2,
+      providerOptions: {
+        openai: {reasoning_effort: 'low'}
+      },
       stopWhen: (output) => {
         return output.steps.length > 6;
       },  
       tools: {
+        obtener_intervalos_libres: tool({
+          description: 'Devuelve intervalos libres por fecha dentro de un rango horario. Usa startDate=endDate para un solo día.',
+          inputSchema: z.object({
+            date: z.string(), // YYYY-MM-DD
+            timeStart: z.string(), // HH:MM
+            timeEnd: z.string(), // HH:MM
+          }),
+          execute: async ({ date, timeStart, timeEnd }) => {
+            if (!date || !timeStart || !timeEnd) {
+              return { error: 'Se requieren date, timeStart y timeEnd' };
+            }
+            try {
+              const url = new URL('/api/turnos', origin);
+              url.searchParams.set('startDate', date);
+              url.searchParams.set('endDate', date);
+              url.searchParams.set('startTime', timeStart);
+              url.searchParams.set('endTime', timeEnd);
+              const res = await fetch(url.toString());
+              const data = await res.json();
+              if (!res.ok) return data;
+              const available: Array<{ date: string; time: string }> = Array.isArray(data.available) ? data.available : [];
+              // Agrupar slots contiguos de 15 min en intervalos
+              const times = available
+                .filter((s) => s.date === date)
+                .map((s) => s.time)
+                .sort();
+              const toMinutes = (t: string) => {
+                const [hh, mm] = t.split(':').map((n) => Number(n));
+                return hh * 60 + mm;
+              };
+              const toTime = (m: number) => {
+                const hh = Math.floor(m / 60);
+                const mm = m % 60;
+                return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+              };
+              const minutes = times.map((t) => toMinutes(t));
+              const intervals: Array<{ start: string; end: string }> = [];
+              if (minutes.length > 0) {
+                let start = minutes[0];
+                let prev = minutes[0];
+                for (let i = 1; i < minutes.length; i++) {
+                  const m = minutes[i];
+                  if (m !== prev + 15) {
+                    intervals.push({ start: toTime(start), end: toTime(prev + 15) });
+                    start = m;
+                  }
+                  prev = m;
+                }
+                intervals.push({ start: toTime(start), end: toTime(prev + 15) });
+              }
+              return { date, intervals };
+            } catch (e) {
+              return { error: 'No se pudieron obtener los intervalos libres:' + e };
+            }
+          },
+        }),
         obtener_turnos_disponibles: tool({
           description: 'Obtiene los turnos disponibles en un rango de fechas y horas (inclusivo)',
           inputSchema: z.object({

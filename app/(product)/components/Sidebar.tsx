@@ -44,7 +44,7 @@ export default function Sidebar({ onClose, onNewChat }: SidebarProps = {}) {
       {/* Footer */}
       <div className="p-3 sm:p-4 border-t border-black/10 dark:border-white/10">
         <div className="text-xs text-black/70 dark:text-white/70 text-center">
-          <p className="font-medium">Prent AI v1.0</p>
+          <p className="font-medium">Prent v1.0</p>
           <p className="mt-1 text-black/50 dark:text-white/50">Sólo para profesionales médicos</p>
         </div>
       </div>

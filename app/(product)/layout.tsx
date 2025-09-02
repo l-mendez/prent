@@ -2,7 +2,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Prent AI – Producto",
+  title: "Prent – Producto",
   description: "Asistente médico con IA y herramientas para operaciones hospitalarias",
 };
 

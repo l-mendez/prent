@@ -16,8 +16,8 @@ export default function Footer() {
               href="/" 
               className="flex items-center gap-2 hover:opacity-80 hover:scale-105 transition-all duration-200 ease-in-out active:scale-95"
             >
-              <Image src="/prent-logo.svg" alt="Prent AI" width={24} height={24} />
-              <span className="font-semibold">Prent AI</span>
+              <Image src="/prent-logo.svg" alt="Prent" width={24} height={24} />
+              <span className="font-semibold">Prent</span>
             </Link>
           </div>
           <div className="text-sm text-black/70 dark:text-white/70 text-center md:text-left">
