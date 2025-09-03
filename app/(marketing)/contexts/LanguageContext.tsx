@@ -67,19 +67,19 @@ const translations = {
     'value.clickToExplore': 'Haz clic para explorar',
     
     // How it works
-    'how.title': 'Despliega en semanas, no meses.',
-    'how.description': 'Nos integramos usando interfaces estándar de la industria y un plano de datos seguro y listo para auditorías. Comienza con una línea de servicio y expándete por toda tu red.',
-    'how.pilot': 'Piloto en un departamento',
+    'how.title': 'Implementación rápida',
+    'how.description': 'Nos integramos con tus sistemas existentes y tu flujo de trabajo. No requiere cambios en tu infraestructura.',
+    'how.pilot': 'Nos desplegamos en todos los canales de comunicación.',
     'how.tools': 'Funciona con tus herramientas existentes',
-    'how.lift': 'Sin carga pesada para TI',
+    'how.lift': 'De fácil adaptación',
     
     // CTA
     'cta.title': 'Prent en acción',
-    'cta.description': 'Solicita una demostración adaptada a las necesidades de tu hospital.',
+    'cta.description': 'Solicitá una demo adaptada a tus necesidades.',
     'cta.demo': 'Demo',
     
     // Footer
-    'footer.tagline': 'Orquestación de IA para operaciones hospitalarias.',
+    'footer.tagline': 'IA orquestada para operaciones hospitalarias.',
   }
 };
 
