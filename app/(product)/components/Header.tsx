@@ -32,6 +32,7 @@ export default function Header({ onToggleSidebar, isSidebarOpen }: HeaderProps =
   const navigationItems = [
     { href: "/consultorio", label: "Turnos", icon: "document" },
     { href: "/urgencias", label: "Urgencias", icon: "document" },
+    { href: "/agendar", label: "Agendar Turno", icon: "calendar" },
     { href: "/misturnos", label: "Mis Turnos", icon: "calendar" },
     { href: "/record", label: "Registro", icon: "microphone" },
     { href: "/simulacion", label: "Simulación", icon: "play" },

@@ -21,7 +21,7 @@ type ResponseFormat = {
 
 let chatId: number | undefined = undefined;
 
-export default function ChatInterface({ mode }: { mode: 'urgencias' | 'consultorio' }) {
+export default function ChatInterface({ mode }: { mode: 'urgencias' | 'consultorio' | 'turnos' }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [mounted, setMounted] = useState(false);
   const [hasGeneratedSummary, setHasGeneratedSummary] = useState(false);
@@ -87,7 +87,7 @@ export default function ChatInterface({ mode }: { mode: 'urgencias' | 'consultor
   }
 
   const getAppointmentResponse = async (allMessages: Message[], chatId: number | undefined, signal?: AbortSignal): Promise<ResponseFormat> => {
-    const response = await fetch('/api/chat/turnos', {
+    const response = await fetch('/api/agendar', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -108,7 +108,7 @@ export default function ChatInterface({ mode }: { mode: 'urgencias' | 'consultor
   
   const generateAIResponse = async (bufferSnapshot: Message[]): Promise<ResponseFormat | null> => {
 
-    let messagesToSend = (hasAppointment || mode === 'urgencias')
+    let messagesToSend = (hasAppointment || mode === 'urgencias' || mode === 'consultorio')
       ? messages.slice(clinicalContextStartIndex)
       : messages;
    
@@ -117,7 +117,7 @@ export default function ChatInterface({ mode }: { mode: 'urgencias' | 'consultor
     abortControllerRef.current = new AbortController();
     const signal = abortControllerRef.current.signal;
     try {
-      const response = (hasAppointment || mode === 'urgencias')
+      const response = (hasAppointment || mode === 'urgencias' || mode === 'consultorio')
         ? await getMedicalResponse(messagesToSend, summary, summaryFormat, keyInfo, mode, chatId, signal)
         : await getAppointmentResponse(messagesToSend, chatId, signal);
       if (response.reserved){

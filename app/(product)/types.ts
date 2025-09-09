@@ -101,3 +101,32 @@ export type ChatUsage = {
   input_tokens: number | null;
   output_tokens: number | null;
 };
+
+export type Doctor = {
+  id: number;
+  nombre: string;
+  especialidad: string;
+  disponibilidad: DoctorAvailability;
+  estado: DoctorStatus;
+  ubicacion: string;
+  telefono?: string;
+  email?: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type DoctorStatus = 'disponible' | 'ocupado' | 'ausente';
+
+export type DoctorAvailability = {
+  lunes: string[];
+  martes: string[];
+  miercoles: string[];
+  jueves: string[];
+  viernes: string[];
+  sabado: string[];
+  domingo: string[];
+};
+
+export type NewDoctor = Omit<Doctor, 'id' | 'created_at' | 'updated_at'>;
+
+export type UpdateDoctor = Partial<Omit<Doctor, 'id' | 'created_at' | 'updated_at'>>;

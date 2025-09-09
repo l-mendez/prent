@@ -1,6 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/db/supabaseClient';
-import type { DoctorWithCurrent, PacienteRel } from '@/app/(product)/types';
+import type { DoctorWithCurrent, PacienteRel, NewDoctor } from '@/app/(product)/types';
+
+export async function POST(request: NextRequest) {
+  try {
+    const doctorData: NewDoctor = await request.json();
+    const supabase = getSupabaseServerClient();
+
+    const { data, error } = await supabase
+      .from('doctores')
+      .insert({
+        nombre: doctorData.nombre,
+        especialidad: doctorData.especialidad,
+        ocupado: false
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating doctor:', error);
+      console.error('Doctor data that failed:', doctorData);
+      return NextResponse.json({ 
+        error: 'No se pudo crear el doctor', 
+        details: error.message,
+        code: error.code 
+      }, { status: 500 });
+    }
+
+    return NextResponse.json({ doctor: data });
+  } catch (err) {
+    console.error('Error en POST /api/doctores:', err);
+    return NextResponse.json({ error: 'Error inesperado' }, { status: 500 });
+  }
+}
 
 export async function GET(_request: NextRequest) {
   try {
@@ -53,4 +85,3 @@ export async function GET(_request: NextRequest) {
     return NextResponse.json({ error: 'Error inesperado' }, { status: 500 });
   }
 }
-
