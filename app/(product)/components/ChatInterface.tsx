@@ -28,7 +28,6 @@ export default function ChatInterface({ mode }: { mode: 'urgencias' | 'consultor
   const [summary, setSummary] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [triageDraft, setTriageDraft] = useState<null | { level: 'Rojo' | 'Naranja' | 'Amarillo' | 'Verde' | 'Azul'; reason?: string }>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [summaryDraft, setSummaryDraft] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [hasAppointment, setHasAppointment] = useState(false);
@@ -207,85 +206,74 @@ export default function ChatInterface({ mode }: { mode: 'urgencias' | 'consultor
     // Show typing indicator while the assistant is thinking/responding
     setIsAssistantTyping(true);
 
-    // Reset timer
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
+    const result = await generateAIResponse(messagesBuffer.current.slice());
+    if (!result) {
+      return;
     }
-    // 10 second wait for the next message
-    timerRef.current = setTimeout(async () => {
-      const result = await generateAIResponse(messagesBuffer.current.slice());
-      if (!result) {
-        // Aborted due to new message; keep typing indicator on
-        return;
-      }
-      const { message: aiResponse, reserved, shouldSummarize: aiShouldSummarize, id: newChatId } = result;
-      chatId = newChatId;
-      
-      shouldSummarize = aiShouldSummarize ?? false;
-      if (typeof aiResponse !== 'string') {
-        throw new Error('AI response: ' + JSON.stringify(aiResponse) + ' is not a string');
-      }
+    const { message: aiResponse, reserved, shouldSummarize: aiShouldSummarize, id: newChatId } = result;
+    chatId = newChatId;
 
-      // Split AI response by newlines to render separate assistant messages per line
-      const normalized = aiResponse
-        .replace(/\r\n/g, '\n')
-        .replace(/\u2028|\u2029/g, '\n')
-        .trim();
-      const parts = normalized
-        .split(/\n+/)
-        .map((s) => s.trim())
-        .filter((s) => s.length > 0);
-      // Sequentially append messages with typing delay for the 2nd, 3rd, ... parts
-      const assistantMessages: Message[] = parts.map((part) => ({ role: 'assistant', content: part }));
-      const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-      if (assistantMessages.length > 0) {
-        // First message immediately
-        setMessages(prev => [...prev, assistantMessages[0]]);
-        if (assistantMessages.length === 1) {
-          // Single-part reply: hide typing indicator
-          setIsAssistantTyping(false);
-        } else {
-          // Multi-part reply: keep typing indicator visible between messages
-          setIsAssistantTyping(true);
-          // Subsequent messages after delay: 500ms per character of that message
-          for (let i = 1; i < assistantMessages.length; i++) {
-            const msg = assistantMessages[i];
-            const delayMs = Math.max(0, msg.content.length * 500);
-            // eslint-disable-next-line no-await-in-loop
-            await sleep(delayMs);
-            setMessages(prev => [...prev, msg]);
-            if (i === assistantMessages.length - 1) {
-              // Last part delivered: hide typing indicator
-              setIsAssistantTyping(false);
-            }
+    shouldSummarize = aiShouldSummarize ?? false;
+    if (typeof aiResponse !== 'string') {
+      throw new Error('AI response: ' + JSON.stringify(aiResponse) + ' is not a string');
+    }
+
+    // Split AI response by newlines to render separate assistant messages per line
+    const normalized = aiResponse
+      .replace(/\r\n/g, '\n')
+      .replace(/\u2028|\u2029/g, '\n')
+      .trim();
+    const parts = normalized
+      .split(/\n+/)
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
+    const assistantMessages: Message[] = parts.map((part) => ({ role: 'assistant', content: part }));
+    if (assistantMessages.length > 0) {
+      // First message immediately
+      setMessages(prev => [...prev, assistantMessages[0]]);
+      if (assistantMessages.length === 1) {
+        setIsAssistantTyping(false);
+      } else {
+        // Keep typing indicator for subsequent messages in the same batch
+        setIsAssistantTyping(true);
+        const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+        for (let i = 1; i < assistantMessages.length; i++) {
+          const msg = assistantMessages[i];
+          // Delay based on 40 words per minute for this message
+          const words = msg.content.trim().split(/\s+/).filter(Boolean).length;
+          const delayMs = Math.max(0, Math.round(words * 1500));
+          // eslint-disable-next-line no-await-in-loop
+          await sleep(delayMs);
+          setMessages(prev => [...prev, msg]);
+          if (i === assistantMessages.length - 1) {
+            setIsAssistantTyping(false);
           }
         }
-      } else {
-        // No assistant message to show; hide typing indicator
-        setIsAssistantTyping(false);
       }
+    } else {
+      setIsAssistantTyping(false);
+    }
 
-      // Si se reservó, pasar a interrogación médica sin cargar datos del turno en el historial
-      if (reserved && mode === 'consultorio') {
-        setHasAppointment(true);
-        // Marcar desde dónde comienza el contexto clínico (no incluir los mensajes previos de agenda)
-        setClinicalContextStartIndex(messages.length);
-        // Agregar la primera pregunta clínica sin borrar historial
-        setMessages(prev => ([
-          ...prev,
-          { role: 'assistant', content: '¿Cuál es la causa principal de tu consulta?' }
-        ]));
-        setSuggestions([]);
-      }
+    // Si se reservó, pasar a interrogación médica sin cargar datos del turno en el historial
+    if (reserved && mode === 'consultorio') {
+      setHasAppointment(true);
+      // Marcar desde dónde comienza el contexto clínico (no incluir los mensajes previos de agenda)
+      setClinicalContextStartIndex(messages.length);
+      // Agregar la primera pregunta clínica sin borrar historial
+      setMessages(prev => ([
+        ...prev,
+        { role: 'assistant', content: '¿Cuál es la causa principal de tu consulta?' }
+      ]));
+      setSuggestions([]);
+    }
 
-      if (shouldSummarize && !hasGeneratedSummary) {
-        const { summary: summaryText, triage } = await generateSummary(messages);
-        setSummaryDraft(summaryText);
-        setTriageDraft(triage ?? null);
-        setHasGeneratedSummary(true);
-        setSuggestions([]);
-      }
-    }, 10000);
+    if (shouldSummarize && !hasGeneratedSummary) {
+      const { summary: summaryText, triage } = await generateSummary(messages);
+      setSummaryDraft(summaryText);
+      setTriageDraft(triage ?? null);
+      setHasGeneratedSummary(true);
+      setSuggestions([]);
+    }
     
   };
 

@@ -156,7 +156,7 @@ const customFormNoTriageSystemPrompt = `
     ];
 
     const response = await generateObject({
-      model: openai('gpt-5'),
+      model: openai('gpt-4o-mini'),
       system: summarySystemPrompt,
       schema: z.object({
         summary: z.string().describe('Resumen actualizado'),

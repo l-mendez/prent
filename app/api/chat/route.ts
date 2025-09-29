@@ -176,7 +176,7 @@ const needSummary = (messages: ConversationMessage[]) => {
 
   const getNextQuestion = async (messages: ConversationMessage[], summary: string, selectedPrompt: string, last10Messages: ConversationMessage[]) => {
     const response = await generateObject({
-  model: openai('gpt-5'),
+  model: openai('gpt-4o-mini'),
   schema: z.object({
       message: z.string(),
       suggestions: z.array(z.string()).max(5),

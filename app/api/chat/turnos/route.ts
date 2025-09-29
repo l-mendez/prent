@@ -181,7 +181,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const messages: ConversationMessage[] = body?.messages || [];
+    const messages: ConversationMessage[] = (body?.messages || []).slice(-10);
     const incomingId: number | null = (body?.id ?? body?.chatId ?? body?.idChat) ?? null;
 
     let reserved = false;
@@ -196,7 +196,7 @@ export async function POST(request: NextRequest) {
     const origin = new URL(request.url).origin;
     
     const response = await generateText({
-      model: openai('gpt-5'),
+      model: openai('gpt-4o-mini'),
       temperature: 0.6,
       presencePenalty: 0.2,
       system: nextQuestionPrompt,
