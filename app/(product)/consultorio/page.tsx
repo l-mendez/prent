@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Header from '@/app/(product)/components/Header';
 import Sidebar from '@/app/(product)/components/Sidebar';
-import ChatInterface from '@/app/(product)/components/ChatInterface';
+import EveChatInterface from '@/app/(product)/components/EveChatInterface';
 import LoadingScreen from '@/app/(product)/components/LoadingScreen';
 import { ChatConfigProvider } from '@/app/(product)/components/ChatConfigContext';
 
@@ -59,7 +59,7 @@ export default function Consultorio() {
           )}
           
           <main className="flex-1 flex flex-col bg-white/60 dark:bg-white/5 backdrop-blur lg:border-l border-black/10 dark:border-white/10 min-w-0 overflow-hidden">
-            <ChatInterface key={chatInstanceId} mode="consultorio" />
+            <EveChatInterface key={chatInstanceId} mode="consultorio" />
           </main>
         </ChatConfigProvider>
       </div>

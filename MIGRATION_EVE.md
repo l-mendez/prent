@@ -4,10 +4,13 @@ Migration of Prent's AI/agent layer from ad‑hoc AI‑SDK / LangChain / OpenAI 
 **[Eve](https://eve.dev/docs/introduction)**, Vercel's filesystem‑first framework for durable
 backend agents.
 
-> **Status: all AI surfaces migrated** into one Eve project, `prent-agent/`, mounted into the
-> existing Next.js app via `withEve`. Audio (Whisper / Realtime) is intentionally left on Next.js
-> (not an Eve‑shaped workload). The original routes were **not deleted** — the Eve agent runs
-> alongside them until you swap the frontend over.
+> **Status: migration complete (pending live validation).** All AI surfaces live in one Eve project,
+> `prent-agent/`, mounted into the Next.js app via `withEve` (the app was upgraded to `next@16` /
+> `ai@7` / `@ai-sdk/openai@4` to match). The three product chat pages now drive the agent through
+> `EveChatInterface` (§5). Audio (Whisper / Realtime) is intentionally left on Next.js (not an
+> Eve‑shaped workload). The original `/api/*` AI routes and `ChatInterface.tsx` are **kept as a
+> fallback** until a live end‑to‑end conversation is validated (no model key in the sandbox), then can
+> be deleted (§7). Everything builds: root `tsc` + `next build` ✅, agent `tsc` + `eve info` ✅.
 
 ---
 
@@ -92,6 +95,18 @@ prent-agent/
 
 ## 4. How to run and verify
 
+**Full app + agent (the integrated path via `withEve`):**
+```bash
+cd prent-agent && pnpm install   # one-time: install the agent's own deps
+cd .. && npm install             # root app (next 16 / ai 7 / eve)
+# env: OPENAI_API_KEY + Supabase vars (see below) in the root .env.local
+npm run dev                      # next dev; withEve boots `eve dev` and proxies /eve/v1/*
+# → open /agendar (turnos), /consultorio, /urgencias — these now drive the eve agent
+```
+For a local production build, run `cd prent-agent && pnpm exec eve build` first so withEve can serve
+the agent's `.output/` (otherwise set `EVE_NEXT_PRODUCTION_ORIGIN`).
+
+**Agent only (REPL / standalone):**
 ```bash
 cd prent-agent
 cp .env.example .env.local     # fill in the values
@@ -123,39 +138,70 @@ curl -N "http://127.0.0.1:3000/eve/v1/session/<sessionId>/stream?startIndex=0"
   direct‑provider wiring and that routing works). Set `OPENAI_API_KEY` for live responses.
 - Two adversarial review passes (independent agents vs the originals + the eve docs, each finding
   re‑verified by a skeptic). Fixes applied are noted in §6.
+- **Upgrade + frontend swap (this pass):** root `npm install` (next@16 / ai@7 / @ai-sdk/openai@4 /
+  eve@0.16) ✅; root `tsc --noEmit` ✅; agent `pnpm install` + `tsc` ✅; `eve info` 0/0 after the
+  auto‑book change ✅; `next build` ✅ — 24 pages, all routes compile with `EveChatInterface` in the
+  consultorio/urgencias/agendar pages (built with dummy env so module‑load Supabase init passes).
 
-> **Not verified here:** the Next.js app was not built in the cloud sandbox (its `node_modules`
-> were not installed), and the frontend wiring is gated on a version decision — see §5.
+> **Not verified here:** a **live end‑to‑end conversation** — the sandbox has no `OPENAI_API_KEY`,
+> Supabase, or running model, so the eve session round‑trip (structured clinical output, turnos
+> booking, resumen) hasn't been exercised against a real model. Run `npm run dev` locally with keys
+> (§4) to validate before deploy.
 
 ---
 
 ## 5. Frontend wiring (Next.js)
 
-**Blocked by a version gap — intentionally not applied to the app.** `eve@0.16` peers on `ai@^7`
-(non‑optional) and `next@^16`, but this app is on `ai@5` / `@ai-sdk/openai@2` / `next@15.4.6`.
-Adding `eve` + `withEve` would break the app's install/build, so those edits were **reverted** to
-keep the app working as‑is. Pick a path first:
+**Version gap resolved — path (a) taken.** The app was upgraded to match the agent and `withEve`
+is now wired:
 
-- **(a) Upgrade the app** to `next@16` + `ai@7` + `@ai-sdk/openai@4` (matching the agent), then set
-  `withEve(nextConfig, { eveRoot: "./prent-agent" })` in `next.config.ts`, add `"eve": "^0.16.0"`
-  to `package.json`, and drop in the component below.
-- **(b) Run the agent standalone** (`cd prent-agent && eve deploy`) and have the browser call it at
-  its own origin via `useEveAgent({ host })` (or a thin fetch client over `/eve/v1/*`), keeping the
-  app off `eve`/`ai@7`.
+- `package.json`: `next 15.4.6 → 16.2.9`, `ai ^5 → ^7.0.4`, `@ai-sdk/openai ^2 → ^4.0.2`,
+  `eslint-config-next 15.4.6 → 16.2.9`, added `eve ^0.16.2`.
+- `next.config.ts`: `export default withEve(nextConfig, { eveRoot: "./prent-agent" })` (imported from
+  `eve/next`). Mounts the eve agent at the eve protocol endpoints, proxied via Next rewrites
+  (`eve dev --no-ui` in dev; the `.output/` build or `EVE_NEXT_PRODUCTION_ORIGIN` in prod).
+- `tsconfig.json`: `prent-agent` added to `exclude` — it's a separate eve project with its own
+  toolchain (zod 4 / its own `tsconfig`), built by `eve build`, not by the Next app's `tsc`.
+- AI‑SDK v7 deltas applied to the **kept** Next routes: `db/utils.ts` now reads cached‑prompt tokens
+  from `inputTokenDetails.cacheReadTokens` (v7 removed the top‑level `cachedInputTokens`), and
+  `app/api/transcribe/route.ts` uses `transcribe` (the graduated name for `experimental_transcribe`).
+  `generateText`/`generateObject`/`tool()`/`system` all remain valid (deprecated‑but‑functional) so
+  the other routes were left as‑is.
 
-The ready‑to‑use component is at **`prent-agent/examples/EveChatInterface.tsx.example`** (mode
-header, turnos HITL approval, clinical structured suggestions, resumen) — rename to `.tsx` into
-`app/(product)/components/` and swap it for `<ChatInterface/>` once a path above is chosen.
+**Frontend swapped to the eve agent.** The three product chat pages now drive the eve agent instead
+of the old `/api/*` routes:
 
-Client‑contract mapping (old → new), all via `useEveAgent({ headers: () => ({ 'x-prent-mode': mode }) })`:
+- `app/(product)/components/EveChatInterface.tsx` — a faithful port of `ChatInterface.tsx` (same UX:
+  `ChatMessage`/`ChatInput`, the urgencias summary+triage panel, the 10s send buffer and multi‑line
+  typing animation). Only the **transport** changed: it uses the imperative `eve/client` `Client` /
+  `ClientSession` over same‑origin `/eve/v1/*`. Each conversation is one **durable server‑side
+  session**, so it sends only the new buffered text per turn (no client‑side history replay or the old
+  `clinicalContextStartIndex` slicing — each mode is its own session). The mode rides as the
+  `x-prent-mode` header on every `send`.
+- `app/(product)/{consultorio,urgencias,agendar}/page.tsx` — now render `<EveChatInterface/>`.
+- The original `ChatInterface.tsx` is **kept** as a one‑line‑revert fallback; the migrated
+  `/api/{chat,agendar,chat/turnos,summary}` routes are also kept (they still build on ai@7) until the
+  eve path is validated against live keys — then they can be deleted (§7).
+
+> **Verified here:** root `tsc --noEmit` clean; agent `tsc` + `eve info` clean (0/0); `next build` ✅
+> (24 pages, all routes compile, eve frontend in the tree). **Not verified here** (no `OPENAI_API_KEY`
+> / Supabase / running model in the sandbox): a live end‑to‑end conversation. Validate locally before
+> deploy — see §4.
+
+Alternative (b) — running the agent standalone (`cd prent-agent && eve deploy`) and calling it from the
+browser via `useEveAgent({ host })` — remains available if you'd rather not route through `withEve`.
+The hook‑based demo (with HITL approval UI) is still at
+**`prent-agent/examples/EveChatInterface.tsx.example`**.
+
+Client‑contract mapping (old → new), as implemented in `EveChatInterface.tsx` via the imperative
+`eve/client` (`const session = new Client({ host: '' }).session()`):
 
 | Old | New |
 | --- | --- |
-| `fetch('/api/agendar', { messages, id })` | `agent.send({ message })`; session state is server‑side |
-| `fetch('/api/chat', …)` → `{ message, suggestions }` | `agent.send({ message, outputSchema })`; read `messages.at(-1).metadata.result` |
-| `{ reserved, turnoId }` | the `reservar_turno` tool result in the stream |
-| `/api/summary` → `{ summary, triage }` | a separate `x-prent-mode: resumen` session with `{summary,triage}` `outputSchema` |
-| booking just happened | **booking now pauses for approval** (HITL) — surfaced at `part.toolMetadata?.eve?.inputRequest`; answer with `agent.send({ inputResponses: [{ requestId, optionId }] })` |
+| `fetch('/api/agendar', { messages, id })` | `session.send({ message, headers: { 'x-prent-mode': 'turnos' } })`; read `result().message`; session state is server‑side |
+| `fetch('/api/chat', …)` → `{ message, suggestions }` | `session.send({ message, outputSchema, headers })`; read `(await response.result()).data` |
+| `{ reserved, turnoId }` | the `reservar_turno` tool result (auto‑book; see §6.2) |
+| `/api/summary` → `{ summary, triage }` | a separate `x-prent-mode: resumen` session with the `{summary,triage}` `outputSchema` |
 
 > **Auth:** replace the demo `prentModeAuth` in `agent/channels/eve.ts` with real auth
 > (Auth.js/Clerk/…) before production — keep it setting `attributes.mode` and returning
@@ -168,9 +214,12 @@ Client‑contract mapping (old → new), all via `useEveAgent({ headers: () => (
 1. **Model: OpenAI direct.** `openai("gpt-5")` via `@ai-sdk/openai@4` (matches eve's
    `@ai-sdk/provider@4`), reusing `OPENAI_API_KEY`. `reasoning_effort:"low"` → `reasoning:"low"`.
    To route via the AI Gateway instead, set `model: "openai/gpt-5"`.
-2. **Booking now requires approval (HITL).** `reservar_turno` uses `approval: always()` (your
-   "ok" to the recommendation). The booking pauses until the UI approves — the original auto‑booked.
-   Revert with `approval: never()` (or remove the line) for pure auto‑book.
+2. **Booking auto‑books (matches the original).** `reservar_turno` runs without an approval gate, the
+   same as the old `/api/chat/turnos`, because the migrated `EveChatInterface` has no approval
+   affordance. (The scaffold originally shipped `approval: always()` for HITL; it was removed when the
+   frontend was swapped — see `agent/tools/turnos.ts`.) To gate booking on human approval, re‑add
+   `approval: always()` (and the `always` import) and handle the resulting `input.requested` event in
+   the UI — the hook demo in `examples/EveChatInterface.tsx.example` shows the approval flow.
 3. **Mode routing via auth attributes**, not `clientContext` (which is per‑turn prompt text only).
 4. **Structured output is per‑message** (`outputSchema` supplied by the client), since interactive
    turns ignore an agent‑level `outputSchema`. The clinical `###RESUMEN###` close token is kept in

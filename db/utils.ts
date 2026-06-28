@@ -11,11 +11,13 @@ export const calculateCost = (usage: ChatUsage) => {
     return (usage.input_tokens || 0) * GPT5.inputTokenCost + (usage.output_tokens || 0) * GPT5.outputTokenCost + (usage.cache_tokens || 0) * GPT5.cachedInputTokenCost;
 }
 
-// Accept usage in either snake_case (our type) or camelCase (AI SDK) and normalize
+// Accept usage in either snake_case (our type) or camelCase (AI SDK) and normalize.
+// AI SDK v7 moved cached prompt tokens to `inputTokenDetails.cacheReadTokens`
+// (the top-level `cachedInputTokens` field was removed).
 const normalizeUsage = (usage: unknown): ChatUsage => {
     const u: any = usage || {};
     return {
-        cache_tokens: u.cache_tokens ?? u.cachedInputTokens ?? u.cacheTokens ?? 0,
+        cache_tokens: u.cache_tokens ?? u.inputTokenDetails?.cacheReadTokens ?? u.cachedInputTokens ?? u.cacheTokens ?? 0,
         input_tokens: u.input_tokens ?? u.inputTokens ?? 0,
         output_tokens: u.output_tokens ?? u.outputTokens ?? 0,
     } as ChatUsage;

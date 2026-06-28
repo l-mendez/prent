@@ -1,4 +1,4 @@
-import { experimental_transcribe } from 'ai';
+import { transcribe } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       audioBuf = await toBufferFromJsonInput(body?.audio);
     }
 
-    const transcription = await experimental_transcribe({
+    const transcription = await transcribe({
       model: openai.transcription('gpt-4o-transcribe'),
       audio: audioBuf,
       headers: {

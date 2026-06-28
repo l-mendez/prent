@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Header from '@/app/(product)/components/Header';
 import DoctorManager from '@/app/(product)/components/DoctorManager';
-import ChatInterface from '@/app/(product)/components/ChatInterface';
+import EveChatInterface from '@/app/(product)/components/EveChatInterface';
 import LoadingScreen from '@/app/(product)/components/LoadingScreen';
 import { DoctorProvider } from '@/app/(product)/contexts/DoctorContext';
 import { ChatConfigProvider } from '@/app/(product)/components/ChatConfigContext';
@@ -61,7 +61,7 @@ export default function Turnos() {
           
           <main className="flex-1 flex flex-col bg-white/60 dark:bg-white/5 backdrop-blur lg:border-l border-black/10 dark:border-white/10 min-w-0 overflow-hidden">
             <ChatConfigProvider mode="turnos">
-              <ChatInterface key={chatInstanceId} mode="turnos" />
+              <EveChatInterface key={chatInstanceId} mode="turnos" />
             </ChatConfigProvider>
           </main>
         </div>

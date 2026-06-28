@@ -1,5 +1,4 @@
 import { defineDynamic, defineTool } from "eve/tools";
-import { always } from "eve/tools/approval";
 import { z } from "zod";
 import { modeFromAttributes } from "../lib/config.js";
 import { fetchAvailability, bookTurno, groupIntoIntervals } from "../lib/turnos-api.js";
@@ -86,10 +85,10 @@ export default defineDynamic({
             date: z.string(),
             time: z.string(),
           }),
-          // Booking is the one irreversible, patient-facing write. Gated on human approval per
-          // eve's responsible-use guidance for healthcare actions. Use never() (or remove this
-          // line) to restore the original auto-book behavior.
-          approval: always(),
+          // Auto-book, matching the original /api/chat/turnos behavior — the migrated chat UI
+          // (EveChatInterface) has no approval affordance. To gate booking on human approval,
+          // set `approval: always()` (re-add the `always` import) and handle the resulting
+          // `input.requested` event in the UI (see prent-agent/examples/EveChatInterface.tsx.example).
           execute: async ({ paciente, date, time }) => {
             if (!paciente || !date || !time) {
               return { error: "paciente, date and time are required" };
