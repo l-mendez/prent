@@ -61,7 +61,7 @@ const RESUMEN_OUTPUT_SCHEMA = {
 // resumen call). Matches both ## RESUMEN ## and ### RESUMEN ###.
 const RESUMEN_TOKEN = /(##\s*RESUMEN\s*##|###\s*RESUMEN\s*###)/i;
 
-export default function EveChatInterface({ mode }: { mode: 'urgencias' | 'consultorio' | 'turnos' }) {
+export default function EveChatInterface({ mode }: { mode: 'urgencias' | 'consultorio' }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [mounted, setMounted] = useState(false);
   const [hasGeneratedSummary, setHasGeneratedSummary] = useState(false);
@@ -75,8 +75,6 @@ export default function EveChatInterface({ mode }: { mode: 'urgencias' | 'consul
   const [isAssistantTyping, setIsAssistantTyping] = useState(false);
   const hasUserMessage = messages.some((m) => m.role === 'user');
   const { lockConfig } = useChatConfig();
-
-  const isClinical = mode === 'urgencias' || mode === 'consultorio';
 
   // One same-origin eve client; one durable session per conversation (created lazily).
   const clientRef = useRef<Client | null>(null);
@@ -120,17 +118,6 @@ export default function EveChatInterface({ mode }: { mode: 'urgencias' | 'consul
     return { message, suggestions: aiSuggestions, shouldSummarize };
   };
 
-  // Scheduler "Claudia" (turnos): free-text reply; booking happens via the agent's tools.
-  const getAppointmentResponse = async (text: string, signal: AbortSignal): Promise<ResponseFormat> => {
-    const response = await getSession().send({
-      message: text,
-      headers: { 'x-prent-mode': 'turnos' },
-      signal,
-    });
-    const result = await response.result();
-    return { message: result.message || 'Gracias por contactarnos. ¿En qué puedo ayudarte?', suggestions: [] };
-  };
-
   const generateAIResponse = async (bufferSnapshot: Message[]): Promise<ResponseFormat | null> => {
     const text = bufferSnapshot.map((m) => m.content).join('\n').trim();
     if (!text) return null;
@@ -139,9 +126,7 @@ export default function EveChatInterface({ mode }: { mode: 'urgencias' | 'consul
     abortControllerRef.current = new AbortController();
     const signal = abortControllerRef.current.signal;
     try {
-      const response = isClinical
-        ? await getClinicalResponse(text, signal)
-        : await getAppointmentResponse(text, signal);
+      const response = await getClinicalResponse(text, signal);
       // Remove only the messages that were actually sent, preserve any new ones that arrived after
       messagesBuffer.current.splice(0, sentLength);
       return response;
@@ -327,61 +312,19 @@ export default function EveChatInterface({ mode }: { mode: 'urgencias' | 'consul
                 </div>
               )}
 
-              {/* Patient name input before actions */}
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="flex flex-col">
-                  <label className="text-xs text-slate-600 mb-1">Nombre del paciente</label>
-                  <input
-                    type="text"
-                    placeholder="Ej.: Juan Pérez"
-                    className="w-full text-sm border border-slate-300 rounded-md p-2 text-black placeholder:text-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                  />
-                  <span className="mt-1 text-[11px] text-slate-500">Se usará para registrar al paciente en la cola.</span>
-                </div>
-              </div>
-
               <div className="mt-4 flex flex-wrap items-center gap-2">
                 <button
                   onClick={() => {
-                    const triageLevel = triageDraft?.level;
-                    setSummaryDraft(null);
-                    setTriageDraft(null);
-                    // Insert paciente con prioridad según triage si existe
-                    (async () => {
-                      try {
-                        const prioridadMap: Record<string, number> = { Rojo: 1, Naranja: 2, Amarillo: 3, Verde: 4, Azul: 5 };
-                        const prioridad = triageLevel ? (prioridadMap[triageLevel] ?? 3) : 3;
-                        const nombre = 'Paciente anónimo';
-                        const res = await fetch('/api/pacientes', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ nombre, prioridad }),
-                        });
-                        if (!res.ok) throw new Error('No se pudo registrar el paciente');
-                      } catch (e) {
-                        console.error(e);
-                      }
-                    })();
-                  }}
-                  className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-emerald-700 active:scale-[0.98] transition"
-                >
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20 6L9 17l-5-5" />
-                  </svg>
-                  Confirmar
-                </button>
-                <button
-                  onClick={() => {
                     setSummaryDraft(null);
                     setTriageDraft(null);
                   }}
-                  className="inline-flex items-center gap-2 rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 active:scale-[0.98] transition"
+                  className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 active:scale-[0.98] transition"
                 >
                   <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M18 6L6 18" />
                     <path d="M6 6l12 12" />
                   </svg>
-                  Rechazar
+                  Cerrar
                 </button>
               </div>
             </div>

@@ -30,12 +30,9 @@ export default function Header({ onToggleSidebar, isSidebarOpen }: HeaderProps =
   }, [mobileNavOpen]);
 
   const navigationItems = [
-    { href: "/consultorio", label: "Turnos", icon: "document" },
+    { href: "/consultorio", label: "Consultorio", icon: "document" },
     { href: "/urgencias", label: "Urgencias", icon: "document" },
-    { href: "/agendar", label: "Agendar Turno", icon: "calendar" },
-    { href: "/misturnos", label: "Mis Turnos", icon: "calendar" },
     { href: "/record", label: "Registro", icon: "microphone" },
-    { href: "/simulacion", label: "Simulación", icon: "play" },
     { href: "/estudios", label: "Estudios", icon: "document" }
   ];
 

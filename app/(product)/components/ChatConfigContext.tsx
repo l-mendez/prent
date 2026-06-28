@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 
-type Mode = 'urgencias' | 'consultorio' | 'turnos';
+type Mode = 'urgencias' | 'consultorio';
 
 interface ChatConfigContextValue {
   mode: Mode;

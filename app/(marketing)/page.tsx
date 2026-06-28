@@ -474,12 +474,6 @@ export default function Home() {
               href: "/record",
             },
             {
-              title: t('value.outcomes.title'),
-              desc: t('value.outcomes.desc'),
-              icon: "/icons/revenue.svg",
-              href: "/misturnos",
-            },
-            {
               title: 'Analizador de Estudios',
               desc: 'Carga cientos de estudios, obtené un resumen y preguntá con citas.',
               icon: "/icons/coordination.svg",
