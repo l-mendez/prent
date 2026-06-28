@@ -1,0 +1,149 @@
+// =============================================================================================
+// EXAMPLE — not compiled. Rename to `EveChatInterface.tsx` and drop into
+// app/(product)/components/ ONLY after the Next app can host eve (see MIGRATION_EVE.md §5):
+// eve@0.16 peers on ai@^7 and next@^16, but this app is on ai@5 / next@15.4.6, so you must
+// either upgrade the app (next@16 + ai@7 + @ai-sdk/openai@4) or run the agent as a separate
+// deployment and point useEveAgent at it via `host`.
+// =============================================================================================
+'use client';
+
+/**
+ * Drives the migrated eve agent (../../prent-agent) via `useEveAgent` over same-origin /eve/v1/*
+ * (mounted by withEve). Replaces the hand-rolled fetch('/api/agendar' | '/api/chat') flow and
+ * demonstrates the agent's mode routing:
+ *   - turnos      → free-text scheduler "Claudia" + tools, with human approval on bookings (HITL).
+ *   - consultorio → clinical interview; structured { message, suggestions } via per-turn outputSchema.
+ *   - urgencias   → ER triage; same structured shape.
+ * Summary/triage ("resumen") is a separate session — see generateSummary() at the bottom.
+ * The mode travels as the `x-prent-mode` header; the channel auth copies it to the session.
+ */
+
+import { useEveAgent } from 'eve/react';
+
+type Mode = 'turnos' | 'consultorio' | 'urgencias';
+
+const CLINICAL_OUTPUT_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['message', 'suggestions'],
+  properties: {
+    message: { type: 'string' },
+    suggestions: { type: 'array', items: { type: 'string' }, maxItems: 5 },
+  },
+} as const;
+
+export default function EveChatInterface({ mode }: { mode: Mode }) {
+  // `headers` is re-resolved before every request, so the mode always rides along.
+  const agent = useEveAgent({ headers: () => ({ 'x-prent-mode': mode }) });
+  const isBusy = agent.status === 'submitted' || agent.status === 'streaming';
+  const isClinical = mode === 'consultorio' || mode === 'urgencias';
+
+  const send = (text: string) => {
+    const message = text.trim();
+    if (!message) return;
+    void agent.send(isClinical ? { message, outputSchema: CLINICAL_OUTPUT_SCHEMA } : { message });
+  };
+
+  const messages = agent.data.messages;
+  const last = messages.at(-1);
+
+  const clinicalReply = last?.metadata?.result as
+    | { message: string; suggestions: string[] }
+    | undefined;
+  const suggestions = isClinical ? (clinicalReply?.suggestions ?? []) : [];
+
+  const pendingApproval = last?.parts
+    ?.find((p: any) => p.type === 'dynamic-tool' && p.toolMetadata?.eve?.inputRequest)
+    ?.toolMetadata?.eve?.inputRequest as
+    | { requestId: string; prompt: string; options?: { id: string; label: string }[] }
+    | undefined;
+
+  const respondApproval = (optionId: string) => {
+    if (!pendingApproval) return;
+    void agent.send({ inputResponses: [{ requestId: pendingApproval.requestId, optionId }] });
+  };
+
+  const renderText = (m: (typeof messages)[number]) => {
+    if (m.role === 'assistant' && (m.metadata?.result as any)?.message) {
+      return (m.metadata!.result as any).message as string;
+    }
+    return (m.parts ?? [])
+      .filter((p: any) => p.type === 'text')
+      .map((p: any) => p.text)
+      .join('');
+  };
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto space-y-3 p-4">
+        {messages.map((m) => (
+          <div key={m.id} className={m.role === 'user' ? 'text-right' : 'text-left'}>
+            <span className="inline-block whitespace-pre-wrap rounded-lg px-3 py-2 bg-black/5 dark:bg-white/10">
+              {renderText(m)}
+            </span>
+          </div>
+        ))}
+
+        {pendingApproval && (
+          <div className="text-left space-y-2">
+            <p className="text-sm opacity-80">{pendingApproval.prompt || '¿Confirmás la reserva?'}</p>
+            <div className="flex gap-2">
+              {(pendingApproval.options ?? [
+                { id: 'approve', label: 'Confirmar' },
+                { id: 'deny', label: 'Cancelar' },
+              ]).map((o) => (
+                <button key={o.id} onClick={() => respondApproval(o.id)} className="rounded-md border px-3 py-1 text-sm">
+                  {o.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {suggestions.length > 0 && (
+        <div className="flex flex-wrap gap-2 px-4 pb-2">
+          {suggestions.map((s, i) => (
+            <button key={i} onClick={() => send(s)} className="rounded-full border px-3 py-1 text-sm">
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <form
+        className="flex gap-2 border-t border-black/10 dark:border-white/10 p-3"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const input = e.currentTarget.elements.namedItem('msg') as HTMLInputElement;
+          send(input.value);
+          input.value = '';
+        }}
+      >
+        <input name="msg" disabled={isBusy || !!pendingApproval} placeholder="Escribí tu mensaje…" className="flex-1 rounded-md border px-3 py-2" />
+        <button type="submit" disabled={isBusy || !!pendingApproval} className="rounded-md border px-4 py-2">Enviar</button>
+      </form>
+    </div>
+  );
+}
+
+/**
+ * Summary + triage (migrated /api/summary): drive from a SEPARATE eve session in "resumen" mode,
+ * passing the conversation as the message and requesting the { summary, triage } shape:
+ *
+ *   const summarizer = useEveAgent({ headers: () => ({ 'x-prent-mode': 'resumen' }) });
+ *   await summarizer.send({
+ *     message: conversationAsText,
+ *     outputSchema: {
+ *       type: 'object', additionalProperties: false, required: ['summary', 'triage'],
+ *       properties: {
+ *         summary: { type: 'string' },
+ *         triage: { type: 'object', required: ['level'],
+ *           properties: { level: { enum: ['Rojo','Naranja','Amarillo','Verde','Azul'] }, reason: { type: 'string' } } },
+ *       },
+ *     },
+ *   });
+ *   const result = summarizer.data.messages.at(-1)?.metadata?.result; // { summary, triage }
+ *
+ * As in the original UI, use `triage` only in urgencias mode and ignore it for consultorio.
+ */
